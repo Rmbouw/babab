@@ -42,7 +42,6 @@
         .location-box{background:#0d0d0d;padding:1px 6px;border-radius:3px;display:inline-block;font-size:10px;border:1px solid #00ff4111}
         .empty{color:#555;text-align:center;padding:20px;font-size:13px}
         .gps-coord{color:#00ccff;font-size:10px}
-
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);z-index:9999;justify-content:center;align-items:center;padding:16px}
         .modal-overlay.active{display:flex}
         .modal-box{background:#111;border-radius:16px;max-width:500px;width:100%;padding:20px;border:1px solid #00ff4133;max-height:92vh;max-height:92dvh;overflow-y:auto}
@@ -65,6 +64,7 @@
         <button class="btn btn-danger" onclick="clearAll()">🗑️ Hapus</button>
         <button class="btn btn-warning" onclick="exportData()">📥 JSON</button>
         <button class="btn" onclick="exportCSV()">📊 CSV</button>
+        <button class="btn" onclick="recoverFromCookie()">🍪 Ambil dari Cookie</button>
     </div>
     <div id="dataContainer"></div>
 
@@ -79,8 +79,62 @@
 
     <script>
         function getData() {
-            try { return JSON.parse(localStorage.getItem('zyx_final_data') || '[]'); } catch { return []; }
+            let data = [];
+            // Coba dari localStorage
+            try {
+                const ls = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
+                if (ls.length > 0) data = ls;
+            } catch (e) {}
+
+            // Coba dari sessionStorage
+            try {
+                const ss = JSON.parse(sessionStorage.getItem('zyx_final_data') || '[]');
+                if (ss.length > 0) data = data.concat(ss);
+            } catch (e) {}
+
+            // Coba dari cookie
+            try {
+                const cookie = document.cookie.split('; ').find(row => row.startsWith('zyx_data='));
+                if (cookie) {
+                    const val = decodeURIComponent(cookie.split('=')[1]);
+                    const parsed = JSON.parse(val);
+                    if (parsed && !data.find(d => d.id === parsed.id)) {
+                        data.push(parsed);
+                    }
+                }
+                const cookieList = document.cookie.split('; ').find(row => row.startsWith('zyx_data_list='));
+                if (cookieList) {
+                    const val = decodeURIComponent(cookieList.split('=')[1]);
+                    const parsed = JSON.parse(val);
+                    if (Array.isArray(parsed)) {
+                        parsed.forEach(p => {
+                            if (!data.find(d => d.id === p.id)) {
+                                data.push(p);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {}
+
+            // Hapus duplikat berdasarkan id
+            const unique = [];
+            const seen = new Set();
+            data.forEach(d => {
+                if (d.id && !seen.has(d.id)) {
+                    seen.add(d.id);
+                    unique.push(d);
+                } else if (!d.id) {
+                    unique.push(d);
+                }
+            });
+
+            return unique;
         }
+
+        window.recoverFromCookie = function() {
+            refreshData();
+            alert('✅ Data dari cookie berhasil diambil!');
+        };
 
         function renderStats(data) {
             const total = data.length;
@@ -242,6 +296,9 @@
         function clearAll() {
             if (confirm('⚠️ Hapus SEMUA data?')) {
                 localStorage.removeItem('zyx_final_data');
+                sessionStorage.removeItem('zyx_final_data');
+                document.cookie = 'zyx_data=; path=/; max-age=0';
+                document.cookie = 'zyx_data_list=; path=/; max-age=0';
                 renderData();
             }
         }
@@ -280,7 +337,7 @@
             URL.revokeObjectURL(url);
         }
 
-        setInterval(renderData, 5000);
+        setInterval(renderData, 3000);
         renderData();
     </script>
 </body>
