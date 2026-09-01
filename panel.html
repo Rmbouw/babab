@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>ZYX - Panel Admin</title>
     <style>
         * {
@@ -14,7 +14,7 @@
         body {
             background: #0a0a0a;
             color: #00ff41;
-            padding: 12px;
+            padding: 10px;
             min-height: 100vh;
         }
         h1 {
@@ -22,52 +22,53 @@
             border-bottom: 2px solid #00ff41;
             padding-bottom: 10px;
             margin-bottom: 12px;
-            font-size: 20px;
-            letter-spacing: 3px;
+            font-size: 18px;
+            letter-spacing: 2px;
         }
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 6px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 5px;
+            margin-bottom: 10px;
         }
         .stat {
             background: #111;
-            padding: 8px;
+            padding: 6px 4px;
             border: 1px solid #00ff4133;
             border-radius: 4px;
             text-align: center;
         }
         .stat .num {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #00ff41;
         }
         .stat .label {
-            font-size: 9px;
+            font-size: 8px;
             color: #666;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .controls {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             flex-wrap: wrap;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .btn {
-            padding: 6px 14px;
+            padding: 5px 12px;
             background: transparent;
             border: 1px solid #00ff41;
             color: #00ff41;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             transition: 0.2s;
+            touch-action: manipulation;
         }
-        .btn:hover {
+        .btn:active {
             background: #00ff41;
             color: #000;
         }
@@ -75,7 +76,7 @@
             border-color: #ff3b3b;
             color: #ff3b3b;
         }
-        .btn-danger:hover {
+        .btn-danger:active {
             background: #ff3b3b;
             color: #000;
         }
@@ -83,7 +84,7 @@
             border-color: #ffaa00;
             color: #ffaa00;
         }
-        .btn-warning:hover {
+        .btn-warning:active {
             background: #ffaa00;
             color: #000;
         }
@@ -92,29 +93,30 @@
             background: #111;
             border: 1px solid #00ff4122;
             border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
         }
         .entry .head {
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 4px;
-            font-size: 12px;
+            gap: 3px;
+            font-size: 11px;
         }
         .entry .head .ip {
             color: #ffaa00;
             font-weight: bold;
+            word-break: break-all;
         }
         .entry .head .time {
             color: #666;
-            font-size: 10px;
+            font-size: 9px;
         }
         .entry .detail {
-            font-size: 11px;
+            font-size: 10px;
             color: #b0ffb0;
-            margin-top: 4px;
-            line-height: 1.7;
+            margin-top: 3px;
+            line-height: 1.6;
         }
         .entry .detail span {
             color: #666;
@@ -127,43 +129,39 @@
             color: #ffaa00;
         }
         .face-section {
-            margin-top: 6px;
-            padding: 6px;
+            margin-top: 4px;
+            padding: 4px 6px;
             background: #0d0d0d;
             border: 1px solid #ff3b3b44;
             border-radius: 4px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             cursor: pointer;
+            touch-action: manipulation;
         }
-        .face-section:hover {
+        .face-section:active {
             border-color: #ff3b3b88;
         }
         .face-section img {
-            max-width: 70px;
-            max-height: 70px;
+            max-width: 55px;
+            max-height: 55px;
             border-radius: 4px;
             border: 1px solid #ff3b3b66;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        .face-section img:hover {
-            transform: scale(1.05);
-            border-color: #ff3b3b;
         }
         .face-section .info {
-            font-size: 10px;
+            font-size: 9px;
             color: #ff8888;
         }
         .badge {
             display: inline-block;
-            padding: 1px 8px;
-            border-radius: 12px;
-            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 8px;
             font-weight: bold;
-            margin-left: 3px;
+            margin-left: 2px;
         }
         .badge.mobile {
             background: #1a3a1a;
@@ -195,31 +193,35 @@
             color: #ffaa00;
             border: 1px solid #ffaa0044;
         }
+        .badge.tablet {
+            background: #2a2a3a;
+            color: #88aaff;
+            border: 1px solid #88aaff44;
+        }
         .map-link {
             color: #4488ff;
             text-decoration: none;
         }
-        .map-link:hover {
-            text-decoration: underline;
-        }
         .location-box {
             background: #0d0d0d;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 1px 6px;
+            border-radius: 3px;
             display: inline-block;
-            font-size: 11px;
+            font-size: 10px;
             border: 1px solid #00ff4111;
         }
         .empty {
             color: #555;
             text-align: center;
             padding: 20px;
+            font-size: 13px;
         }
         .gps-coord {
             color: #00ccff;
-            font-size: 11px;
+            font-size: 10px;
         }
 
+        /* MODAL ZOOM */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -227,12 +229,14 @@
             left: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
         .modal-overlay.active {
             display: flex;
@@ -240,46 +244,55 @@
         .modal-box {
             background: #111;
             border-radius: 16px;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            padding: 25px;
+            padding: 20px;
             border: 1px solid #00ff4133;
-            max-height: 90vh;
+            max-height: 92vh;
+            max-height: 92dvh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .modal-box img {
             width: 100%;
             border-radius: 8px;
             border: 2px solid #2a4a2a;
+            max-height: 300px;
+            object-fit: contain;
         }
         .modal-box .close-btn {
             text-align: center;
-            margin-top: 14px;
+            margin-top: 12px;
             color: #666;
             font-size: 12px;
             cursor: pointer;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             padding: 8px;
             border: 1px solid #222;
             border-radius: 8px;
             transition: 0.2s;
+            touch-action: manipulation;
         }
-        .modal-box .close-btn:hover {
+        .modal-box .close-btn:active {
             background: #1a1a1a;
             color: #00ff41;
         }
         .modal-box .detail-row {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 3px 0;
             border-bottom: 1px solid #1a1a1a;
-            font-size: 12px;
+            font-size: 11px;
+            gap: 8px;
         }
         .modal-box .detail-row .label {
             color: #666;
+            flex-shrink: 0;
         }
         .modal-box .detail-row .value {
             color: #b0ffb0;
+            text-align: right;
+            word-break: break-word;
         }
         .modal-box .detail-row .value.rt {
             color: #ffd54f;
@@ -287,6 +300,42 @@
         }
         .modal-box .detail-row .value.landmark {
             color: #ffaa00;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 3px;
+        }
+        .modal-box::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 400px) {
+            body {
+                padding: 6px;
+            }
+            .entry .head {
+                font-size: 10px;
+            }
+            .entry .detail {
+                font-size: 9px;
+            }
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            }
+            .stat .num {
+                font-size: 14px;
+            }
+            .btn {
+                font-size: 9px;
+                padding: 4px 10px;
+            }
+            .face-section img {
+                max-width: 45px;
+                max-height: 45px;
+            }
         }
     </style>
 </head>
@@ -298,24 +347,26 @@
     <div class="controls">
         <button class="btn" onclick="refreshData()">🔄 Refresh</button>
         <button class="btn btn-danger" onclick="clearAll()">🗑️ Hapus</button>
-        <button class="btn btn-warning" onclick="exportData()">📥 Export JSON</button>
-        <button class="btn" onclick="exportCSV()">📊 Export CSV</button>
+        <button class="btn btn-warning" onclick="exportData()">📥 JSON</button>
+        <button class="btn" onclick="exportCSV()">📊 CSV</button>
     </div>
 
     <div id="dataContainer"></div>
 
-    <div class="modal-overlay" id="faceZoomModal">
+    <!-- MODAL ZOOM -->
+    <div class="modal-overlay" id="faceZoomModal" onclick="if(event.target===this)closeZoomModal()">
         <div class="modal-box">
-            <h3 style="color:#00ff41;font-weight:300;letter-spacing:2px;margin-bottom:10px;">📸 Detail Korban</h3>
+            <h3 style="color:#00ff41;font-weight:300;letter-spacing:1px;margin-bottom:10px;font-size:16px;text-align:center;">📸 Detail Korban</h3>
             <img id="zoomFaceImg" src="" alt="Face">
-            <div id="zoomDetail" style="margin-top:12px;"></div>
+            <div id="zoomDetail" style="margin-top:10px;"></div>
             <div class="close-btn" onclick="closeZoomModal()">✕ TUTUP</div>
         </div>
     </div>
 
     <script>
+        // ================== DATA ==================
         function getData() {
-            try { return JSON.parse(localStorage.getItem('zyx_ultimate_v5') || '[]'); } catch { return []; }
+            try { return JSON.parse(localStorage.getItem('zyx_ultimate_v6') || '[]'); } catch { return []; }
         }
 
         function renderStats(data) {
@@ -327,6 +378,7 @@
             const withGps = data.filter(d => d.gpsLat).length;
             const withRt = data.filter(d => d.rt && d.rw).length;
             const withLandmark = data.filter(d => d.landmark).length;
+            const mobile = data.filter(d => d.deviceType === 'mobile').length;
 
             document.getElementById('stats').innerHTML = `
                 <div class="stat"><div class="num">${total}</div><div class="label">Total</div></div>
@@ -336,6 +388,7 @@
                 <div class="stat"><div class="num">${withGps}</div><div class="label">GPS</div></div>
                 <div class="stat"><div class="num">${withRt}</div><div class="label">RT/RW</div></div>
                 <div class="stat"><div class="num">${withLandmark}</div><div class="label">Patokan</div></div>
+                <div class="stat"><div class="num">${mobile}</div><div class="label">HP</div></div>
             `;
         }
 
@@ -353,7 +406,7 @@
             const reversed = [...data].reverse();
             reversed.forEach((d, idx) => {
                 const deviceClass = d.deviceType === 'mobile' ? 'mobile' : d.deviceType === 'tablet' ? 'tablet' :
-                'desktop';
+                    'desktop';
                 const locParts = [];
                 if (d.country) locParts.push(d.country);
                 if (d.region && d.region !== d.country) locParts.push(d.region);
@@ -382,10 +435,10 @@
                         <div>
                             <span class="ip">📍 ${d.ip || 'IP tidak terdeteksi'}</span>
                             <span class="badge ${deviceClass}">${d.deviceType || 'unknown'}</span>
-                            ${hasGps ? '<span class="badge gps">📍 GPS</span>' : ''}
-                            ${hasFace ? '<span class="badge face">📸 WAJAH</span>' : ''}
-                            ${hasRt ? '<span class="badge rt">🏘️ RT/RW</span>' : ''}
-                            ${hasLandmark ? '<span class="badge landmark">📍 PATOKAN</span>' : ''}
+                            ${hasGps ? '<span class="badge gps">GPS</span>' : ''}
+                            ${hasFace ? '<span class="badge face">WAJAH</span>' : ''}
+                            ${hasRt ? '<span class="badge rt">RT/RW</span>' : ''}
+                            ${hasLandmark ? '<span class="badge landmark">PATOKAN</span>' : ''}
                             <span class="location-box">${location}</span>
                         </div>
                         <div class="time">${d.timestamp_local || new Date(d.timestamp).toLocaleString()}</div>
@@ -408,17 +461,18 @@
                         ${hasGps ? `
                             <span class="gps-coord">🛰️ GPS: ${d.gpsLat.toFixed(6)}, ${d.gpsLon.toFixed(6)}</span>
                             ${d.gpsAccuracy ? ` · Akurasi: ${Math.round(d.gpsAccuracy)}m` : ''}
-                            <a class="map-link" href="https://maps.google.com/maps?q=${d.gpsLat},${d.gpsLon}" target="_blank"> 🗺️ Lihat GPS</a>
+                            <a class="map-link" href="https://maps.google.com/maps?q=${d.gpsLat},${d.gpsLon}" target="_blank"> 🗺️ Peta</a>
                             <br>
                         ` : (d.lat && d.lon ? `
                             <span class="gps-coord">📍 IP: ${d.lat.toFixed(4)}, ${d.lon.toFixed(4)}</span>
-                            <a class="map-link" href="https://maps.google.com/maps?q=${d.lat},${d.lon}" target="_blank"> 🗺️ Lihat Peta</a>
+                            <a class="map-link" href="https://maps.google.com/maps?q=${d.lat},${d.lon}" target="_blank"> 🗺️ Peta</a>
                             <br>
                         ` : '')}
 
                         ${d.os ? `💻 ${d.os}` : ''}
                         ${d.browser ? ` · 🌐 ${d.browser}` : ''}
                         ${d.screen ? ` · 🖥️ ${d.screen}` : ''}
+                        ${d.battery ? ` · 🔋 ${d.battery.level} ${d.battery.charging ? '⚡' : ''}` : ''}
                         <br>
 
                         ${d.connectionType ? `📶 ${d.connectionType} · ${d.connectionSpeed || '?'}Mbps` : ''}
@@ -426,25 +480,25 @@
                         ${d.language ? ` · 🌐 ${d.language}` : ''}
                         <br>
 
-                        ${d.webglRenderer ? `<span style="color:#555;font-size:10px;">🎮 GPU: ${d.webglRenderer}</span>` : ''}
-                        ${d.localIp ? ` · <span style="color:#555;font-size:10px;">🏠 IP Lokal: ${d.localIp}</span>` : ''}
+                        ${d.webglRenderer ? `<span style="color:#555;font-size:9px;">🎮 GPU: ${d.webglRenderer}</span>` : ''}
+                        ${d.localIp ? ` · <span style="color:#555;font-size:9px;">🏠 IP Lokal: ${d.localIp}</span>` : ''}
                     </div>
 
                     ${hasFace ? `
                     <div class="face-section" onclick="openZoomModal('${d.faceImage}', '${fullAddr}', '${d.rtRw || '-'}', '${d.landmark || '-'}', '${d.ip || '-'}', '${d.os || '-'}', '${d.browser || '-'}', '${d.deviceType || '-'}', '${d.gpsLat && d.gpsLon ? d.gpsLat.toFixed(6)+', '+d.gpsLon.toFixed(6) : d.lat && d.lon ? d.lat.toFixed(4)+', '+d.lon.toFixed(4) : '-'}')">
                         <img src="${d.faceImage}" alt="Face">
                         <div class="info">
-                            <strong>📸 WAJAH TEREKAM</strong><br>
+                            <strong>📸 WAJAH</strong><br>
                             Skin: ${d.faceData?.skinRatio || '?'}<br>
-                            <span style="color:#666;font-size:9px;">Klik untuk zoom</span>
+                            <span style="color:#666;font-size:8px;">Klik zoom</span>
                         </div>
                     </div>
                     ` : `
-                    <div style="color:#444;font-size:10px;margin-top:4px;">🚫 Tidak ada wajah terekam</div>
+                    <div style="color:#444;font-size:9px;margin-top:3px;">🚫 Tidak ada wajah</div>
                     `}
 
-                    <div style="font-size:9px;color:#333;margin-top:4px;word-break:break-all;">
-                        ${d.userAgent ? d.userAgent.substring(0, 100) + '...' : ''}
+                    <div style="font-size:8px;color:#333;margin-top:3px;word-break:break-all;">
+                        ${d.userAgent ? d.userAgent.substring(0, 80) + '...' : ''}
                     </div>
                 </div>
                 `;
@@ -452,6 +506,7 @@
             container.innerHTML = html;
         }
 
+        // ================== ZOOM MODAL ==================
         function openZoomModal(faceImg, address, rtRw, landmark, ip, os, browser, device, coord) {
             document.getElementById('zoomFaceImg').src = faceImg;
             document.getElementById('zoomDetail').innerHTML = `
@@ -471,15 +526,12 @@
             document.body.style.overflow = '';
         }
 
-        document.getElementById('faceZoomModal').addEventListener('click', function(e) {
-            if (e.target === this) closeZoomModal();
-        });
-
+        // ================== UTILITY ==================
         function refreshData() { renderData(); }
 
         function clearAll() {
             if (confirm('⚠️ Hapus SEMUA data?')) {
-                localStorage.removeItem('zyx_ultimate_v5');
+                localStorage.removeItem('zyx_ultimate_v6');
                 renderData();
             }
         }
@@ -490,7 +542,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `zyx_v5_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `zyx_v6_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -516,12 +568,13 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `zyx_v5_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `zyx_v6_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
         }
 
-        setInterval(renderData, 8000);
+        // Auto refresh
+        setInterval(renderData, 6000);
         renderData();
     </script>
 </body>
